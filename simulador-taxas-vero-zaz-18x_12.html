@@ -1,0 +1,4135 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Simulador Vero" />
+  <meta name="theme-color" content="#0A1972" />
+  <title>Simulador de Taxas — Vero × ZAZ Vendas</title>
+  <style>
+    :root {
+      --primary:       #0A1972;
+      --primary-dark:  #060F50;
+      --primary-light: #EEF2FF;
+      --accent:        #00C2DC;
+      --accent-dark:   #009DB3;
+      --bg:            #F0F4FA;
+      --card:          #FFFFFF;
+      --text:          #1C1C1E;
+      --subtext:       #6C6C70;
+      --border:        #D1D1D6;
+      --success:       #28A745;
+      --success-bg:    #F0FFF4;
+      --danger:        #FF3B30;
+      --danger-bg:     #FFF2F2;
+      --radius:        14px;
+      --shadow:        0 1px 6px rgba(0,0,0,0.07), 0 4px 16px rgba(0,0,0,0.05);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { overflow-x: hidden; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.5;
+      min-height: 100vh;
+      min-height: 100dvh;
+      overflow-x: hidden;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* HEADER */
+    header {
+      background: var(--primary);
+      padding: calc(14px + env(safe-area-inset-top)) calc(20px + env(safe-area-inset-right)) 14px calc(20px + env(safe-area-inset-left));
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+    }
+
+    .h-left { display: flex; align-items: center; gap: 12px; }
+
+    .h-logo {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .h-logo-img { height: 28px; display: block; filter: brightness(0) invert(1); }
+    .h-maq-img  { height: 48px; width: auto; object-fit: contain; display: block; }
+    .h-sep   { color: rgba(255,255,255,0.4); font-size: 16px; }
+    .h-sub   { font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.8); }
+
+    .h-badge {
+      background: var(--accent);
+      color: var(--primary);
+      font-size: 11px;
+      font-weight: 800;
+      padding: 5px 13px;
+      border-radius: 20px;
+      letter-spacing: 0.4px;
+    }
+
+    .h-right {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 8px;
+      row-gap: 8px;
+    }
+
+    .h-cnpj-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.25);
+      color: #fff;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 7px 14px;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .h-cnpj-btn:hover { background: rgba(255,255,255,0.22); }
+
+    @media (max-width: 500px) {
+      .h-cnpj-label { display: none; }
+    }
+
+    @media (max-width: 640px) {
+      header {
+        flex-wrap: wrap;
+        row-gap: 10px;
+        padding: 12px 16px;
+      }
+      .h-left  { width: 100%; }
+      .h-right { width: 100%; justify-content: space-between; }
+    }
+
+    @media (max-width: 340px) {
+      .h-badge { display: none; }
+    }
+
+    /* LAYOUT */
+    main {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 20px calc(16px + env(safe-area-inset-right)) 60px calc(16px + env(safe-area-inset-left));
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 390px 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+
+    @media (max-width: 760px) { .layout { grid-template-columns: 1fr; } }
+
+    .col-inputs { display: flex; flex-direction: column; gap: 14px; }
+    .col-result  { display: flex; flex-direction: column; gap: 14px; }
+
+    /* CARDS */
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px 20px;
+    }
+
+    .card-title {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--primary);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .card-title-icon {
+      width: 22px; height: 22px;
+      background: var(--primary-light);
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px;
+    }
+
+    /* FIELDS */
+    .field { margin-bottom: 13px; }
+    .field:last-child { margin-bottom: 0; }
+
+    .field-label {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--subtext);
+      margin-bottom: 6px;
+    }
+
+    .input-wrap { position: relative; }
+
+    .input-wrap input {
+      width: 100%;
+      padding: 10px 40px 10px 12px;
+      border: 1.5px solid var(--border);
+      border-radius: 9px;
+      font-family: inherit;
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--text);
+      background: #fff;
+      outline: none;
+      -webkit-appearance: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .input-wrap input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(10,25,114,0.12);
+    }
+
+    .input-suffix {
+      position: absolute;
+      right: 12px; top: 50%;
+      transform: translateY(-50%);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--subtext);
+      pointer-events: none;
+    }
+
+    /* TOGGLE GROUP */
+    .toggle-group {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .tgl {
+      flex: 1;
+      min-width: 72px;
+      padding: 9px 10px;
+      border: 1.5px solid var(--border);
+      border-radius: 9px;
+      background: #fff;
+      color: var(--subtext);
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s;
+      line-height: 1.3;
+    }
+
+    .tgl.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+    }
+
+    .tgl.active.accent {
+      background: var(--accent);
+      border-color: var(--accent-dark);
+      color: var(--primary);
+    }
+
+    .tgl:hover:not(.active) {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .tgl small { display: block; font-size: 10px; font-weight: 500; opacity: 0.8; margin-top: 1px; }
+
+    /* SELECT */
+    select {
+      width: 100%;
+      padding: 10px 36px 10px 12px;
+      border: 1.5px solid var(--border);
+      border-radius: 9px;
+      font-family: inherit;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+      background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%236C6C70'/%3E%3C/svg%3E") no-repeat right 14px center;
+      -webkit-appearance: none;
+      appearance: none;
+      outline: none;
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+
+    select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(10,25,114,0.12);
+    }
+
+    /* CHECKBOX */
+    .check-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 13px;
+      background: var(--bg);
+      border-radius: 9px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .check-row input[type="checkbox"] {
+      width: 18px; height: 18px;
+      accent-color: var(--primary);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .check-label { font-size: 13px; font-weight: 600; }
+    .check-sub   { font-size: 11px; color: var(--subtext); margin-top: 1px; }
+
+    .hidden { display: none !important; }
+
+    /* PLAN INFO CHIP */
+    .plan-info-chip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 8px;
+      padding: 8px 12px;
+      background: linear-gradient(135deg, var(--primary), #1a3ab5);
+      border-radius: 9px;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .plan-info-chip .pic-label { opacity: 0.85; font-weight: 500; margin-right: 2px; }
+
+    /* FAT CHIP */
+    .fat-chip {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-top: 8px;
+      padding: 9px 13px;
+      border-radius: 9px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .fat-chip.ok  { background: var(--success-bg); color: #1a7a3a; }
+    .fat-chip.low { background: var(--danger-bg);  color: #c0392b; }
+    .fat-chip.info{ background: var(--primary-light); color: var(--primary); }
+
+    .fat-chip .fc-plans { font-size: 11px; font-weight: 500; opacity: 0.85; }
+
+    select option:disabled { color: #C7C7CC; }
+
+    /* COMPETITOR GRID */
+    .comp-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    @media (max-width: 360px) { .comp-grid { grid-template-columns: 1fr; } }
+
+    /* ====== PLAN TABLE CARD ====== */
+    .plan-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .plan-head {
+      background: linear-gradient(135deg, var(--primary), #1a3ab5);
+      padding: 16px 20px 14px;
+    }
+
+    .plan-head-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .plan-head-left { display: flex; align-items: center; gap: 12px; }
+
+    .plan-icon {
+      width: 52px; height: 52px;
+      background: rgba(255,255,255,0.12);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .plan-icon img {
+      height: 100%;
+      width: auto;
+      object-fit: cover;
+      object-position: center center;
+    }
+
+    .plan-title { font-size: 15px; font-weight: 800; color: #fff; line-height: 1.3; }
+    .plan-title span { display: block; font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.8); margin-top: 2px; }
+
+    .plan-type-badge {
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.4px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .plan-type-badge.aut {
+      background: var(--accent);
+      color: var(--primary);
+    }
+
+    .plan-type-badge.opc {
+      background: rgba(255,255,255,0.2);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.4);
+    }
+
+    .plan-brands {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+
+    .brand-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 9px;
+      border-radius: 5px;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .bc-vm   { background: #E8EDFF; color: #1a3ab5; }
+    .bc-elo  { background: #FFF3CD; color: #856404; }
+    .bc-vc   { background: #D4EDDA; color: #155724; }
+    .bc-ban  { background: #F8D7DA; color: #721c24; }
+    .bc-pix  { background: #D1ECF1; color: #0c5460; }
+
+    .plan-table-wrap { overflow-x: auto; }
+
+    .plan-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 360px;
+    }
+
+    .plan-table thead th {
+      padding: 8px 12px;
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      text-align: center;
+      border-bottom: 2px solid var(--border);
+      color: var(--subtext);
+      background: #F8F8FA;
+    }
+
+    .plan-table thead th:first-child { text-align: left; }
+    .plan-table thead th.col-hl { background: var(--primary-light); color: var(--primary); }
+
+    .plan-table tbody td {
+      padding: 8px 12px;
+      font-size: 13px;
+      font-weight: 600;
+      text-align: center;
+      border-bottom: 1px solid var(--bg);
+    }
+
+    .plan-table tbody td:first-child {
+      text-align: left;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--subtext);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .plan-table tbody tr:last-child td { border-bottom: none; }
+    .plan-table td.hl { color: var(--primary); font-weight: 800; background: rgba(10,25,114,0.04); }
+    .plan-table td.hl-accent { color: var(--accent-dark); font-weight: 800; background: rgba(0,194,220,0.06); }
+
+    .plan-table tbody tr:hover td { background: #FAFAFA; }
+    .plan-table tbody tr:hover td.hl { background: rgba(10,25,114,0.07); }
+
+    .plan-foot {
+      background: #F8F8FA;
+      padding: 10px 14px;
+      border-top: 1px solid var(--border);
+      font-size: 11px;
+      color: var(--subtext);
+      line-height: 1.7;
+    }
+
+    .plan-foot strong { color: var(--text); }
+
+    /* ====== RESULT CARD ====== */
+    .result-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .result-head {
+      background: linear-gradient(135deg, var(--primary), #1a3ab5);
+      padding: 16px 20px;
+    }
+
+    .result-head h2 { font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 3px; }
+    .result-head .rh-sub { font-size: 12px; color: rgba(255,255,255,0.75); }
+
+    .result-head.collapsible {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .collapse-arrow {
+      font-size: 13px;
+      color: rgba(255,255,255,0.85);
+      transition: transform 0.2s ease;
+      flex-shrink: 0;
+    }
+    .result-card.collapsed .result-body { display: none; }
+    .result-card.collapsed .collapse-arrow { transform: rotate(180deg); }
+
+    .result-body { padding: 18px 20px; }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    @media (max-width: 480px) { .two-col { grid-template-columns: 1fr; } }
+
+    .side-label {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+      margin-bottom: 10px;
+      color: var(--primary);
+    }
+
+    .side-label.comp { color: var(--subtext); }
+
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 5px 0;
+      border-bottom: 1px solid var(--bg);
+      font-size: 13px;
+      gap: 8px;
+    }
+
+    .detail-row .dk { color: var(--subtext); font-weight: 500; flex: 1; }
+    .detail-row .dv { font-weight: 700; text-align: right; white-space: nowrap; }
+    .detail-row.total-row { border-top: 2px solid var(--bg); padding-top: 9px; margin-top: 4px; border-bottom: none; }
+    .detail-row.total-row .dv { font-size: 17px; color: var(--primary); }
+    .detail-row.total-row.comp-total .dv { color: var(--text); }
+
+    .liquido-box {
+      border-radius: 11px;
+      padding: 14px 16px;
+    }
+
+    .liquido-box.vero-box { background: var(--primary-light); }
+    .liquido-box.comp-box { background: var(--bg); }
+
+    .lb-label   { font-size: 11px; font-weight: 700; color: var(--subtext); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+    .lb-value   { font-size: 27px; font-weight: 800; letter-spacing: -1px; color: var(--text); }
+    .lb-cost    { font-size: 12px; color: var(--subtext); margin-top: 3px; }
+    .lb-parcela { font-size: 12px; color: var(--subtext); margin-top: 2px; }
+
+    /* GAIN BANNER */
+    .gain-banner {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 14px 16px;
+      border-radius: 11px;
+      font-size: 15px;
+      font-weight: 700;
+      margin-top: 14px;
+      text-align: center;
+    }
+
+    .gain-banner.positive { background: var(--success-bg); color: #1a7a3a; }
+    .gain-banner.negative { background: var(--danger-bg); color: #c0392b; }
+    .gain-banner.neutral  { background: var(--bg); color: var(--subtext); }
+    .gain-banner .gb-icon { font-size: 20px; }
+
+    /* EMPTY STATE */
+    .empty-state {
+      text-align: center;
+      padding: 30px 20px;
+      color: var(--subtext);
+      font-size: 13px;
+    }
+
+    .empty-icon { font-size: 36px; margin-bottom: 10px; }
+
+    /* COMPARISON TOGGLE */
+    .comp-toggle-btn {
+      width: 100%;
+      padding: 14px 20px;
+      background: var(--card);
+      border: none;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background 0.15s;
+    }
+
+    .comp-toggle-btn:hover { background: var(--primary-light); }
+
+    .comp-section { display: none; margin-top: 10px; }
+    .comp-section.open { display: block; }
+
+    /* TABLE */
+    .table-wrap {
+      overflow-x: auto;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      background: var(--card);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 580px;
+    }
+
+    thead th {
+      padding: 10px 14px;
+      text-align: right;
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--subtext);
+      background: #F8F8FA;
+      border-bottom: 2px solid var(--border);
+      white-space: nowrap;
+    }
+
+    thead th:first-child, thead th:nth-child(2) { text-align: left; }
+
+    tbody tr { border-bottom: 1px solid var(--bg); transition: background 0.1s; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: #FAFAFA; }
+
+    tbody td {
+      padding: 10px 14px;
+      font-size: 13px;
+      text-align: right;
+      vertical-align: middle;
+      white-space: nowrap;
+    }
+
+    tbody td:first-child { text-align: left; color: var(--subtext); font-weight: 600; }
+    tbody td:nth-child(2) { text-align: left; }
+
+    .tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 5px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .tag-debit  { background: #EEF2FF; color: var(--primary); }
+    .tag-credit { background: #FFF7ED; color: #C2410C; }
+    .tag-pix    { background: #D1ECF1; color: #0c5460; }
+
+    .g-pos  { color: #1a7a3a; font-weight: 700; }
+    .g-neg  { color: #c0392b; font-weight: 700; }
+    .g-zero { color: var(--subtext); }
+    .dash   { color: var(--subtext); }
+
+    /* MOBILE CARDS */
+    .mob-cards { display: none; }
+
+    @media (max-width: 600px) {
+      .table-wrap { display: none; }
+      .mob-cards  { display: block; }
+    }
+
+    .mob-card {
+      background: var(--card);
+      border-radius: 11px;
+      padding: 13px 15px;
+      margin-bottom: 8px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+
+    .mob-card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .mob-parcela { font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 7px; }
+    .mob-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+
+    .mob-metric {
+      background: var(--bg);
+      border-radius: 7px;
+      padding: 8px 10px;
+    }
+
+    .mm-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; color: var(--subtext); margin-bottom: 3px; }
+    .mm-val   { font-size: 14px; font-weight: 700; }
+    .mm-val.primary { color: var(--primary); }
+    .mm-val.muted   { color: var(--subtext); }
+
+    .mob-gain {
+      margin-top: 9px;
+      padding: 8px 11px;
+      border-radius: 7px;
+      font-size: 13px;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    /* ANTECIP INFO BOX */
+    .antecip-info {
+      background: linear-gradient(135deg, rgba(0,194,220,0.1), rgba(10,25,114,0.06));
+      border: 1px solid var(--accent);
+      border-radius: 9px;
+      padding: 10px 13px;
+      margin-top: 6px;
+    }
+
+    .ai-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--accent-dark); margin-bottom: 3px; }
+    .ai-value { font-size: 16px; font-weight: 800; color: var(--primary); }
+    .ai-sub   { font-size: 11px; color: var(--subtext); margin-top: 2px; }
+
+    /* PARC TABLE GRID */
+    .parc-table-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .ptg-row {
+      display: grid;
+      grid-template-columns: 1fr 130px;
+      align-items: center;
+      gap: 10px;
+      padding: 7px 12px;
+      border-bottom: 1px solid var(--bg);
+    }
+
+    .ptg-row:last-child { border-bottom: none; }
+
+    .ptg-header {
+      background: #F8F8FA;
+      padding: 7px 12px;
+      border-bottom: 2px solid var(--border);
+    }
+
+    .ptg-header span {
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--subtext);
+    }
+
+    .ptg-sep {
+      background: var(--primary-light);
+      grid-template-columns: 1fr;
+      padding: 5px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .ptg-sep span {
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--primary);
+    }
+
+    .ptg-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .ptg-input input {
+      padding: 7px 34px 7px 10px;
+      font-size: 16px;
+    }
+
+    /* EXPORT CARD */
+    .export-card {
+      background: linear-gradient(135deg, var(--primary), #1a3ab5);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px 20px;
+    }
+
+    .export-card .card-title { color: rgba(255,255,255,0.9); }
+    .export-card .card-title-icon { background: rgba(255,255,255,0.15); }
+    .export-card .field-label { color: rgba(255,255,255,0.7); }
+
+    .export-card input[type="text"] {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1.5px solid rgba(255,255,255,0.3);
+      border-radius: 9px;
+      font-family: inherit;
+      font-size: 16px;
+      font-weight: 600;
+      color: #fff;
+      background: rgba(255,255,255,0.12);
+      outline: none;
+      -webkit-appearance: none;
+      transition: border-color 0.15s, background 0.15s;
+      placeholder-color: rgba(255,255,255,0.5);
+    }
+
+    .export-card input[type="text"]::placeholder { color: rgba(255,255,255,0.45); }
+    .export-card input[type="text"]:focus {
+      border-color: var(--accent);
+      background: rgba(255,255,255,0.18);
+    }
+
+    .export-card .check-row {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .export-card .check-row input[type="checkbox"] { accent-color: var(--accent); }
+    .export-card .check-label { color: #fff; }
+    .export-card .check-sub   { color: rgba(255,255,255,0.65); }
+
+    .btn-export {
+      width: 100%;
+      margin-top: 14px;
+      padding: 14px 20px;
+      background: var(--accent);
+      color: var(--primary);
+      border: none;
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      letter-spacing: 0.3px;
+      transition: background 0.15s, transform 0.1s;
+      box-shadow: 0 4px 16px rgba(0,194,220,0.35);
+    }
+
+    .btn-export:hover  { background: #00d8f5; transform: translateY(-1px); }
+    .btn-export:active { transform: translateY(0); }
+
+    .btn-whatsapp {
+      background: #25D366;
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(37,211,102,0.35);
+    }
+    .btn-whatsapp:hover { background: #20bd5a; }
+
+    .btn-whatsapp-note {
+      margin-top: 8px;
+      font-size: 10.5px;
+      line-height: 1.5;
+      color: rgba(255,255,255,0.65);
+      text-align: center;
+    }
+
+    /* INSTALLMENT LIST (1x-18x) */
+    .il-row {
+      display: grid;
+      grid-template-columns: 44px 1fr 78px;
+      align-items: center;
+      gap: 10px;
+      padding: 7px 2px;
+      border-bottom: 1px solid var(--bg);
+      font-size: 13px;
+    }
+    .il-row:last-child { border-bottom: none; }
+    .il-row.il-highlight { background: var(--primary-light); border-radius: 8px; padding-left: 8px; padding-right: 8px; }
+    .il-n {
+      font-weight: 800;
+      color: var(--primary);
+      font-size: 13px;
+    }
+    .il-liq {
+      font-weight: 700;
+      color: var(--text);
+    }
+    .il-taxa {
+      font-weight: 700;
+      color: var(--subtext);
+      text-align: right;
+      font-size: 12.5px;
+    }
+
+    /* BREAKEVEN BANNER */
+    /* SIMULAÇÃO MENSAL — EXPLICAÇÃO E INDICADOR DE SOMA */
+    .ms-explainer {
+      font-size: 12px;
+      line-height: 1.6;
+      color: var(--subtext);
+      background: var(--primary-light);
+      border: 1px solid rgba(10,25,114,0.12);
+      border-radius: 9px;
+      padding: 10px 13px;
+      margin-bottom: 14px;
+    }
+    .ms-explainer strong { color: var(--primary); }
+
+    .ms-label-hint {
+      display: block;
+      font-size: 9.5px;
+      font-weight: 500;
+      text-transform: none;
+      letter-spacing: 0;
+      color: var(--subtext);
+      opacity: 0.75;
+      margin-top: 1px;
+    }
+
+    .ms-sum-indicator {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 9px 13px;
+      border-radius: 9px;
+      font-size: 12.5px;
+      font-weight: 700;
+      transition: background 0.15s, color 0.15s;
+    }
+    .ms-sum-indicator.ok   { background: var(--success-bg); color: #1a7a3a; }
+    .ms-sum-indicator.warn { background: var(--danger-bg);  color: #c0392b; }
+
+    .breakeven-banner {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-top: 12px;
+      padding: 12px 14px;
+      background: linear-gradient(135deg, rgba(0,194,220,0.1), rgba(10,25,114,0.05));
+      border: 1px solid var(--accent);
+      border-radius: 11px;
+    }
+    .bb-icon { font-size: 20px; line-height: 1.3; }
+    .bb-label {
+      font-size: 11px; font-weight: 800; text-transform: uppercase;
+      letter-spacing: 0.5px; color: var(--accent-dark); margin-bottom: 3px;
+    }
+    .bb-text { font-size: 13px; font-weight: 600; color: var(--text); line-height: 1.6; }
+
+    /* SPACER */
+    .spacer { height: 14px; }
+
+    footer {
+      text-align: center;
+      padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
+      font-size: 11px;
+      color: var(--subtext);
+    }
+
+    /* ====== MODAL CONSULTA CNPJ ====== */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; right: 0; bottom: 0; left: 0;
+      width: 100%;
+      height: 100vh;
+      height: 100dvh;
+      background: rgba(6,15,80,0.55);
+      z-index: 1000;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 40px 16px;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .modal-overlay.open { display: flex; }
+
+    .modal-box {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      width: 100%;
+      max-width: 560px;
+      overflow: hidden;
+      animation: modalIn 0.18s ease-out;
+    }
+
+    @keyframes modalIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .modal-head {
+      background: linear-gradient(135deg, var(--primary), #1a3ab5);
+      padding: 18px 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .modal-head h2 { font-size: 16px; font-weight: 800; color: #fff; }
+    .modal-head .modal-sub { font-size: 12px; color: rgba(255,255,255,0.75); margin-top: 2px; }
+    .modal-close {
+      background: rgba(255,255,255,0.15);
+      border: none;
+      color: #fff;
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      font-size: 16px;
+      cursor: pointer;
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.15s;
+    }
+    .modal-close:hover { background: rgba(255,255,255,0.28); }
+
+    .modal-body { padding: 20px 22px 22px; }
+
+    .cnpj-search-row {
+      display: flex;
+      gap: 8px;
+    }
+    .cnpj-search-row .input-wrap { flex: 1; }
+    .cnpj-search-row input {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 9px;
+      font-family: inherit;
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .cnpj-search-row input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(10,25,114,0.12);
+    }
+    .cnpj-search-btn {
+      padding: 0 20px;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 9px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: background 0.15s;
+      white-space: nowrap;
+    }
+    .cnpj-search-btn:hover:not(:disabled) { background: var(--primary-dark); }
+    .cnpj-search-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .cnpj-result-area { margin-top: 18px; }
+
+    .cnpj-loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      padding: 30px 0;
+      color: var(--subtext);
+      font-size: 13px;
+    }
+    .cnpj-spinner {
+      width: 30px; height: 30px;
+      border: 3px solid var(--primary-light);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .cnpj-error {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--danger-bg);
+      color: #c0392b;
+      padding: 12px 14px;
+      border-radius: 9px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .cnpj-card {
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .cnpj-card-head {
+      padding: 14px 16px;
+      background: var(--primary-light);
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .cnpj-razao { font-size: 16px; font-weight: 800; color: var(--primary); line-height: 1.3; }
+    .cnpj-fantasia { font-size: 12px; color: var(--subtext); margin-top: 2px; }
+    .cnpj-cnpj-num { font-size: 11px; color: var(--subtext); margin-top: 4px; font-weight: 600; }
+
+    .cnpj-badge {
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.3px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .cnpj-badge.ativa    { background: var(--success-bg); color: #1a7a3a; }
+    .cnpj-badge.baixada  { background: var(--danger-bg);  color: #c0392b; }
+    .cnpj-badge.suspensa,
+    .cnpj-badge.inapta   { background: #FFF3CD; color: #856404; }
+    .cnpj-badge.outro    { background: var(--bg); color: var(--subtext); }
+
+    .cnpj-info-grid {
+      padding: 14px 16px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    @media (max-width: 480px) { .cnpj-info-grid { grid-template-columns: 1fr; } }
+
+    .cnpj-info-item.full { grid-column: 1 / -1; }
+    .cnpj-info-label {
+      font-size: 10px; font-weight: 800; text-transform: uppercase;
+      letter-spacing: 0.5px; color: var(--subtext); margin-bottom: 3px;
+    }
+    .cnpj-info-value { font-size: 13px; font-weight: 600; color: var(--text); line-height: 1.4; }
+
+    .cnpj-socios-wrap {
+      padding: 0 16px 14px;
+    }
+    .cnpj-socios-title {
+      font-size: 10px; font-weight: 800; text-transform: uppercase;
+      letter-spacing: 0.5px; color: var(--subtext); margin-bottom: 6px;
+    }
+    .cnpj-socio-chip {
+      display: inline-block;
+      background: var(--bg);
+      padding: 4px 10px;
+      border-radius: 7px;
+      font-size: 12px;
+      font-weight: 600;
+      margin: 0 6px 6px 0;
+    }
+    .cnpj-socio-chip small { color: var(--subtext); font-weight: 500; }
+
+    .cnpj-actions {
+      padding: 12px 16px 4px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      border-top: 1px solid var(--bg);
+    }
+    .cnpj-actions button {
+      flex: 1 1 120px;
+      padding: 10px 12px;
+      border-radius: 9px;
+      font-family: inherit;
+      font-size: 12.5px;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      transition: opacity 0.15s;
+    }
+    .cnpj-actions button:hover { opacity: 0.88; }
+    .cnpj-btn-use   { background: var(--primary); color: #fff; }
+    .cnpj-btn-source{ background: var(--bg); color: var(--subtext); }
+    .cnpj-btn-ccmei { background: #FFF3CD; color: #856404; }
+
+    .cnpj-ccmei-note {
+      margin: 8px 16px 12px;
+      padding: 8px 11px;
+      background: #FFF9E6;
+      border: 1px solid #FFE79A;
+      border-radius: 8px;
+      font-size: 10.5px;
+      color: #6C6C70;
+      line-height: 1.5;
+    }
+    .cnpj-ccmei-note strong { color: #856404; }
+
+    .cnpj-source-note {
+      font-size: 10.5px;
+      color: var(--subtext);
+      text-align: center;
+      margin-top: 10px;
+      line-height: 1.5;
+    }
+
+    /* ====== MODAL DE BOAS-VINDAS / COMO USAR ====== */
+    .intro-mobile-alert {
+      background: linear-gradient(135deg, rgba(0,194,220,0.1), rgba(10,25,114,0.05));
+      border: 1.5px solid var(--accent);
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-bottom: 18px;
+    }
+    .intro-mobile-alert-title {
+      font-size: 13.5px;
+      font-weight: 800;
+      color: var(--primary);
+      margin-bottom: 8px;
+    }
+    .intro-steps {
+      margin: 0 0 10px 18px;
+      padding: 0;
+      font-size: 12.5px;
+      color: var(--text);
+      line-height: 1.9;
+    }
+    .intro-steps strong { color: var(--primary); }
+    .intro-mobile-alert-sub {
+      font-size: 11px;
+      color: var(--subtext);
+      line-height: 1.6;
+      padding-top: 8px;
+      border-top: 1px solid rgba(10,25,114,0.1);
+    }
+    .intro-mobile-alert-sub strong { color: var(--text); }
+
+    .intro-section { margin-bottom: 16px; }
+    .intro-section:last-of-type { margin-bottom: 20px; }
+    .intro-section-title {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--primary);
+      margin-bottom: 8px;
+    }
+    .intro-p {
+      font-size: 13px;
+      color: var(--text);
+      line-height: 1.6;
+    }
+    .intro-p strong { color: var(--primary); }
+
+    .intro-features {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+    .intro-feature {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+      background: var(--bg);
+      padding: 9px 12px;
+      border-radius: 9px;
+    }
+    .intro-feature span { font-size: 16px; flex-shrink: 0; }
+
+    .intro-start-btn {
+      width: 100%;
+      padding: 14px 20px;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 14.5px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .intro-start-btn:hover { background: var(--primary-dark); }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="h-left">
+    <div class="h-logo">
+      <img class="h-logo-img" src="https://www.sejavero.com.br/bom/multimidia/bomd99im_vero_logo-positivo.svg" alt="Vero" />
+    </div>
+    <div class="h-sep">×</div>
+    <div class="h-sub">ZAZ Vendas</div>
+  </div>
+  <div class="h-right">
+    <button class="h-cnpj-btn h-info-btn" id="open-info-btn" onclick="openIntroModal()">
+      <span>ℹ️</span> <span class="h-cnpj-label">Como Usar</span>
+    </button>
+    <button class="h-cnpj-btn" id="open-cnpj-btn" onclick="openCnpjModal()">
+      <span>🔍</span> <span class="h-cnpj-label">Consultar CNPJ</span>
+    </button>
+    <div class="h-badge">Simulador de Taxas</div>
+  </div>
+</header>
+
+<main>
+  <div class="layout">
+
+    <!-- ===== COLUNA INPUTS ===== -->
+    <div class="col-inputs">
+
+      <!-- Configuração do Plano -->
+      <div class="card">
+        <div class="card-title">
+          <span class="card-title-icon">📋</span>
+          Configuração do Plano
+        </div>
+
+        <div class="field">
+          <span class="field-label">Faturamento mensal do cliente</span>
+          <div class="input-wrap">
+            <input type="number" id="faturamento" placeholder="Ex: 50000" min="0" inputmode="numeric" />
+            <span class="input-suffix">R$</span>
+          </div>
+          <div id="fat-chip" class="fat-chip info hidden">
+            <span id="fat-chip-text">—</span>
+            <span id="fat-chip-plans" class="fc-plans"></span>
+          </div>
+        </div>
+
+        <div class="field">
+          <span class="field-label">Plano Vero</span>
+          <select id="plan-select">
+            <option value="0010">ZAZ 0010 — Fat. mín. R$ 3.000</option>
+            <option value="0011">ZAZ 0011 — Fat. mín. R$ 10.000</option>
+            <option value="0012">ZAZ 0012 — Fat. mín. R$ 10.000</option>
+            <option value="0013">ZAZ 0013 — Fat. mín. R$ 10.000</option>
+            <option value="0014">ZAZ 0014 — Fat. mín. R$ 20.000</option>
+            <option value="0015" selected>ZAZ 0015 — Fat. mín. R$ 20.000</option>
+            <option value="0016">ZAZ 0016 — Fat. mín. R$ 40.000</option>
+            <option value="0017">ZAZ 0017 — Fat. mín. R$ 60.000</option>
+            <option value="0018">ZAZ 0018 — Fat. mín. R$ 60.000</option>
+            <option value="0019">ZAZ 0019 — Fat. mín. R$ 60.000</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <span class="field-label">Tipo de Antecipação</span>
+          <div class="toggle-group" id="antecip-type-group">
+            <button class="tgl active" data-val="aut">
+              🔄 Automática
+              <small>Já embutida na taxa</small>
+            </button>
+            <button class="tgl" data-val="opc">
+              ⚡ Opcional
+              <small>Cliente escolhe</small>
+            </button>
+          </div>
+        </div>
+
+        <div id="antecip-info-wrap" class="antecip-info">
+          <div class="ai-label">Taxa de Antecipação</div>
+          <div class="ai-value" id="antecip-rate-display">—</div>
+          <div class="ai-sub" id="antecip-type-desc">Antecipação automática aplicada em crédito e parcelado</div>
+        </div>
+      </div>
+
+      <!-- Dados da Venda -->
+      <div class="card">
+        <div class="card-title">
+          <span class="card-title-icon">💰</span>
+          Dados da Venda
+        </div>
+
+        <div class="field">
+          <span class="field-label">Valor da venda</span>
+          <div class="input-wrap">
+            <input type="number" id="saleValue" placeholder="Ex: 500" min="0" inputmode="numeric" />
+            <span class="input-suffix">R$</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <span class="field-label">Bandeira</span>
+          <div class="toggle-group" id="brand-group">
+            <button class="tgl active" data-val="vm">Visa/MC</button>
+            <button class="tgl"        data-val="elo">Elo/Cabal</button>
+            <button class="tgl"        data-val="vc">VerdeCard</button>
+            <button class="tgl"        data-val="ban">Banricard</button>
+            <button class="tgl"        data-val="pix">PIX</button>
+          </div>
+        </div>
+
+        <div class="field" id="method-field">
+          <span class="field-label">Forma de pagamento</span>
+          <div class="toggle-group" id="method-group">
+            <button class="tgl active" data-val="debito">Débito</button>
+            <button class="tgl"        data-val="credito">Crédito 1x</button>
+            <button class="tgl"        data-val="parc">Parcelado</button>
+          </div>
+        </div>
+
+        <div class="field hidden" id="inst-field">
+          <span class="field-label">Quantidade de parcelas</span>
+          <select id="installments">
+            <option value="2">2x</option>
+            <option value="3">3x</option>
+            <option value="4">4x</option>
+            <option value="5">5x</option>
+            <option value="6">6x</option>
+            <option value="7">7x</option>
+            <option value="8">8x</option>
+            <option value="9">9x</option>
+            <option value="10">10x</option>
+            <option value="11">11x</option>
+            <option value="12">12x</option>
+            <option value="13">13x</option>
+            <option value="14">14x</option>
+            <option value="15">15x</option>
+            <option value="16">16x</option>
+            <option value="17">17x</option>
+            <option value="18">18x</option>
+          </select>
+        </div>
+
+        <div class="field hidden" id="antecip-toggle-wrap">
+          <label for="includeAdv">
+            <div class="check-row">
+              <input type="checkbox" id="includeAdv" checked />
+              <div>
+                <div class="check-label">Incluir antecipação no cálculo</div>
+                <div class="check-sub">Apenas para antecipação opcional (OPC)</div>
+              </div>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <!-- Comparação -->
+      <div class="card">
+        <div class="card-title">
+          <span class="card-title-icon">⚔️</span>
+          Comparação
+        </div>
+
+        <div class="field">
+          <div class="toggle-group" id="comp-mode-group">
+            <button class="tgl active" data-val="competitor">⚔️ Concorrente<small>MDR + antecip. sep.</small></button>
+            <button class="tgl"        data-val="parc-table">📊 Taxa por Parcela<small>Taxa composta 1–18x</small></button>
+            <button class="tgl"        data-val="vero">🔵 Outro Plano Vero<small>Comparar planos</small></button>
+          </div>
+        </div>
+
+        <!-- MODO CONCORRENTE -->
+        <div id="comp-competitor-panel">
+          <p style="font-size:12px;color:var(--subtext);margin-bottom:14px">
+            Taxas atuais do cliente em % — ex: <strong>3,5</strong> para 3,5%
+          </p>
+          <div class="comp-grid">
+            <div class="field">
+              <span class="field-label">Débito</span>
+              <div class="input-wrap">
+                <input type="number" id="c-debito" placeholder="0,00" step="0.01" min="0" inputmode="decimal" />
+                <span class="input-suffix">%</span>
+              </div>
+            </div>
+            <div class="field">
+              <span class="field-label">Crédito 1x</span>
+              <div class="input-wrap">
+                <input type="number" id="c-credito" placeholder="0,00" step="0.01" min="0" inputmode="decimal" />
+                <span class="input-suffix">%</span>
+              </div>
+            </div>
+            <div class="field">
+              <span class="field-label">Parc. 2x a 6x</span>
+              <div class="input-wrap">
+                <input type="number" id="c-p2a6" placeholder="0,00" step="0.01" min="0" inputmode="decimal" />
+                <span class="input-suffix">%</span>
+              </div>
+            </div>
+            <div class="field">
+              <span class="field-label">Parc. 7x a 18x</span>
+              <div class="input-wrap">
+                <input type="number" id="c-p7a12" placeholder="0,00" step="0.01" min="0" inputmode="decimal" />
+                <span class="input-suffix">%</span>
+              </div>
+            </div>
+          </div>
+          <div class="field" style="margin-top:4px">
+            <span class="field-label">Antecipação</span>
+            <div class="input-wrap">
+              <input type="number" id="c-antecip" placeholder="0,00" step="0.01" min="0" inputmode="decimal" />
+              <span class="input-suffix">%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- MODO TAXA POR PARCELA -->
+        <div id="comp-parc-panel" class="hidden">
+          <p style="font-size:12px;color:var(--subtext);margin-bottom:14px">
+            Taxa <strong>já composta</strong> (MDR + antecipação juntos) do concorrente, por número de parcelas — do jeito que o cliente recebe a proposta.
+          </p>
+          <div class="parc-table-grid">
+            <div class="ptg-row ptg-header">
+              <span>Modalidade</span>
+              <span>Taxa %</span>
+            </div>
+            <div class="ptg-row">
+              <label class="ptg-label" for="pt-deb">Débito</label>
+              <div class="input-wrap ptg-input">
+                <input type="number" id="pt-deb" placeholder="—" step="0.01" min="0" inputmode="decimal" />
+                <span class="input-suffix">%</span>
+              </div>
+            </div>
+            <div class="ptg-row">
+              <label class="ptg-label" for="pt-1x">Crédito 1x</label>
+              <div class="input-wrap ptg-input">
+                <input type="number" id="pt-1x" placeholder="—" step="0.01" min="0" inputmode="decimal" />
+                <span class="input-suffix">%</span>
+              </div>
+            </div>
+            <div class="ptg-row ptg-sep"><span>Parcelado</span></div>
+            <div class="ptg-row" id="ptg-2x">
+              <label class="ptg-label" for="pt-2x">2x</label>
+              <div class="input-wrap ptg-input">
+                <input type="number" id="pt-2x" placeholder="—" step="0.01" min="0" inputmode="decimal" />
+                <span class="input-suffix">%</span>
+              </div>
+            </div>
+            <div class="ptg-row">
+              <label class="ptg-label" for="pt-3x">3x</label>
+              <div class="input-wrap ptg-input">
+                <input type="number" id="pt-3x" placeholder="—" step="0.01" min="0" inputmode="decimal" />
+                <span class="input-suffix">%</span>
+              </div>
+            </div>
+            <div class="ptg-row">
+              <label class="ptg-label" for="pt-4x">4x</label>
+              <div class="input-wrap ptg-input">
+                <input type="number" id="pt-4x" placeholder="—" step="0.01" min="0" inputmode="decimal" />
+                <span class="input-suffix">%</span>
+              </div>
+            </div>
+            <div class="ptg-row">
+              <label class="ptg-label" for="pt-5x">5x</label>
+              <div class="input-wrap ptg-input">
+                <input type="number" id="pt-5x" placeholder="—" step="0.01" min="0" inputmode="decimal" />
+                <span class="input-suffix">%</span>
+              </div>
+            </div>
+            <div class="ptg-row">
+              <label class="ptg-label" for="pt-6x">6x</label>
+              <div class="input-wrap ptg-input">
+                <input type="number" id="pt-6x" placeholder="—" step="0.01" min="0" inputmode="decimal" />
+                <span class="input-suffix">%</span>
+              </div>
+            </div>
+            <div class="ptg-row">
+              <label class="ptg-label" for="pt-7x">7x</label>
+              <div class="input-wrap ptg-input">
+                <input type="number" id="pt-7x" placeholder="—" step="0.01" min="0" inputmode="decimal" />
+                <span class="input-suffix">%</span>
+              </div>
+            </div>
+            <div class="ptg-row">
+              <label class="ptg-label" for="pt-8x">8x</label>
+              <div class="input-wrap ptg-input">
+                <input type="number" id="pt-8x" placeholder="—" step="0.01" min="0" inputmode="decimal" />
+                <span class="input-suffix">%</span>
+              </div>
+            </div>
+            <div class="ptg-row">
+              <label class="ptg-label" for="pt-9x">9x</label>
+              <div class="input-wrap ptg-input">
+                <input type="number" id="pt-9x" placeholder="—" step="0.01" min="0" inputmode="decimal" />
+                <span class="input-suffix">%</span>
+              </div>
+            </div>
+            <div class="ptg-row">
+              <label class="ptg-label" for="pt-10x">10x</label>
+              <div class="input-wrap ptg-input">
+                <input type="number" id="pt-10x" placeholder="—" step="0.01" min="0" inputmode="decimal" />
+                <span class="input-suffix">%</span>
+              </div>
+            </div>
+            <div class="ptg-row">
+              <label class="ptg-label" for="pt-11x">11x</label>
+              <div class="input-wrap ptg-input">
+                <input type="number" id="pt-11x" placeholder="—" step="0.01" min="0" inputmode="decimal" />
+                <span class="input-suffix">%</span>
+              </div>
+            </div>
+            <div class="ptg-row">
+              <label class="ptg-label" for="pt-12x">12x</label>
+              <div class="input-wrap ptg-input">
+                <input type="number" id="pt-12x" placeholder="—" step="0.01" min="0" inputmode="decimal" />
+                <span class="input-suffix">%</span>
+              </div>
+            </div>
+            <div class="ptg-row">
+              <label class="ptg-label" for="pt-13x">13x</label>
+              <div class="input-wrap ptg-input">
+                <input type="number" id="pt-13x" placeholder="—" step="0.01" min="0" inputmode="decimal" />
+                <span class="input-suffix">%</span>
+              </div>
+            </div>
+            <div class="ptg-row">
+              <label class="ptg-label" for="pt-14x">14x</label>
+              <div class="input-wrap ptg-input">
+                <input type="number" id="pt-14x" placeholder="—" step="0.01" min="0" inputmode="decimal" />
+                <span class="input-suffix">%</span>
+              </div>
+            </div>
+            <div class="ptg-row">
+              <label class="ptg-label" for="pt-15x">15x</label>
+              <div class="input-wrap ptg-input">
+                <input type="number" id="pt-15x" placeholder="—" step="0.01" min="0" inputmode="decimal" />
+                <span class="input-suffix">%</span>
+              </div>
+            </div>
+            <div class="ptg-row">
+              <label class="ptg-label" for="pt-16x">16x</label>
+              <div class="input-wrap ptg-input">
+                <input type="number" id="pt-16x" placeholder="—" step="0.01" min="0" inputmode="decimal" />
+                <span class="input-suffix">%</span>
+              </div>
+            </div>
+            <div class="ptg-row">
+              <label class="ptg-label" for="pt-17x">17x</label>
+              <div class="input-wrap ptg-input">
+                <input type="number" id="pt-17x" placeholder="—" step="0.01" min="0" inputmode="decimal" />
+                <span class="input-suffix">%</span>
+              </div>
+            </div>
+            <div class="ptg-row">
+              <label class="ptg-label" for="pt-18x">18x</label>
+              <div class="input-wrap ptg-input">
+                <input type="number" id="pt-18x" placeholder="—" step="0.01" min="0" inputmode="decimal" />
+                <span class="input-suffix">%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- MODO OUTRO PLANO VERO -->
+        <div id="comp-vero-panel" class="hidden">
+          <p style="font-size:12px;color:var(--subtext);margin-bottom:14px">
+            Selecione o plano Vero para comparar lado a lado.
+          </p>
+          <div class="field">
+            <span class="field-label">Plano para comparar</span>
+            <select id="comp-plan-select">
+              <option value="0010">ZAZ 0010 — Fat. mín. R$ 3.000</option>
+              <option value="0011">ZAZ 0011 — Fat. mín. R$ 10.000</option>
+              <option value="0012">ZAZ 0012 — Fat. mín. R$ 10.000</option>
+              <option value="0013">ZAZ 0013 — Fat. mín. R$ 10.000</option>
+              <option value="0014">ZAZ 0014 — Fat. mín. R$ 20.000</option>
+              <option value="0015">ZAZ 0015 — Fat. mín. R$ 20.000</option>
+              <option value="0016" selected>ZAZ 0016 — Fat. mín. R$ 40.000</option>
+              <option value="0017">ZAZ 0017 — Fat. mín. R$ 60.000</option>
+              <option value="0018">ZAZ 0018 — Fat. mín. R$ 60.000</option>
+              <option value="0019">ZAZ 0019 — Fat. mín. R$ 60.000</option>
+            </select>
+          </div>
+          <div class="field">
+            <span class="field-label">Antecipação do plano comparado</span>
+            <div class="toggle-group" id="comp-antecip-group">
+              <button class="tgl active" data-val="aut">🔄 Automática</button>
+              <button class="tgl"        data-val="opc">⚡ Opcional</button>
+            </div>
+          </div>
+          <div class="field" id="comp-incl-adv-wrap">
+            <label for="compInclAdv">
+              <div class="check-row">
+                <input type="checkbox" id="compInclAdv" checked />
+                <div>
+                  <div class="check-label">Incluir antecipação (OPC)</div>
+                  <div class="check-sub">Ativo apenas no modo Opcional</div>
+                </div>
+              </div>
+            </label>
+          </div>
+          <div id="comp-vero-chip" class="antecip-info" style="margin-top:0">
+            <div class="ai-label">Antecipação do plano comparado</div>
+            <div class="ai-value" id="comp-vero-antecip-rate">—</div>
+            <div class="ai-sub" id="comp-vero-antecip-desc">—</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Gerar Proposta PDF -->
+      <div class="export-card">
+        <div class="card-title">
+          <span class="card-title-icon">📄</span>
+          Gerar Proposta PDF
+        </div>
+
+        <div class="field">
+          <span class="field-label">Nome do Estabelecimento</span>
+          <input type="text" id="estab-name" placeholder="Ex: Padaria do João" />
+        </div>
+
+        <div class="field">
+          <span class="field-label">Nome do Promotor</span>
+          <input type="text" id="promoter-name" placeholder="Ex: João Silva" />
+        </div>
+
+        <div class="field">
+          <label for="pdf-incl-comp">
+            <div class="check-row">
+              <input type="checkbox" id="pdf-incl-comp" />
+              <div>
+                <div class="check-label">Incluir comparativo na proposta</div>
+                <div class="check-sub">Adiciona coluna do concorrente/plano na tabela</div>
+              </div>
+            </div>
+          </label>
+        </div>
+
+        <div class="field">
+          <label for="pdf-show-liq">
+            <div class="check-row">
+              <input type="checkbox" id="pdf-show-liq" checked />
+              <div>
+                <div class="check-label">Mostrar valor líquido em R$</div>
+                <div class="check-sub">Usa o valor real da venda simulada (campo "Valor da venda"); se estiver vazio, usa R$1.000 como referência</div>
+              </div>
+            </div>
+          </label>
+        </div>
+
+        <button class="btn-export" onclick="generatePDF()">
+          <span>⬇️</span> Exportar Proposta PDF
+        </button>
+        <button class="btn-export btn-whatsapp" id="whatsapp-pdf-btn" onclick="shareProposalPDF()">
+          <span>💬</span> Enviar PDF por WhatsApp
+        </button>
+        <div class="btn-whatsapp-note">
+          📱 No celular, anexa o PDF automaticamente. No computador, baixa o arquivo e você anexa manualmente.
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ===== COLUNA RESULTADO ===== -->
+    <div class="col-result">
+
+      <!-- Tabela do Plano -->
+      <div class="plan-card" id="plan-card">
+        <div class="plan-head">
+          <div class="plan-head-row">
+            <div class="plan-head-left">
+              <img class="h-maq-img" src="https://www.sejavero.com.br/bod/link/midias/21030_smart-maquinas-394x270.png" alt="Maquininha Vero" />
+              <div>
+                <div class="plan-title" id="plan-title">ZAZ 0015</div>
+                <div class="plan-title"><span id="plan-fat-sub">Faturamento mínimo: R$ 20.000</span></div>
+              </div>
+            </div>
+            <div class="plan-type-badge aut" id="plan-type-badge">AUTOMÁTICA</div>
+          </div>
+          <div class="plan-brands">
+            <span class="brand-chip bc-vm">Visa/Master</span>
+            <span class="brand-chip bc-elo">Elo/Cabal</span>
+            <span class="brand-chip bc-vc">VerdeCard</span>
+            <span class="brand-chip bc-ban">Banricard</span>
+            <span class="brand-chip bc-pix">PIX</span>
+          </div>
+        </div>
+
+        <div class="plan-table-wrap">
+          <table class="plan-table">
+            <thead>
+              <tr>
+                <th>Modalidade</th>
+                <th class="col-hl">Visa/Master</th>
+                <th>Elo/Cabal</th>
+                <th>VerdeCard</th>
+                <th>Banricard</th>
+                <th>PIX</th>
+              </tr>
+            </thead>
+            <tbody id="plan-tbody"></tbody>
+          </table>
+        </div>
+
+        <div class="plan-foot">
+          <div id="plan-antecip-foot"></div>
+        </div>
+      </div>
+
+      <!-- Resultado -->
+      <div class="result-card" id="result-card">
+        <div class="result-head">
+          <h2 id="result-title">Resultado da Simulação</h2>
+          <div class="rh-sub" id="result-sub">Preencha o valor da venda para calcular</div>
+        </div>
+        <div class="result-body" id="result-body">
+          <div class="empty-state">
+            <div class="empty-icon">🧮</div>
+            Informe o valor da venda para ver o resultado.
+          </div>
+        </div>
+      </div>
+
+      <!-- Parcela a Parcela (1x a 18x) -->
+      <div class="result-card" id="installment-list-card">
+        <div class="result-head collapsible" onclick="toggleCollapse('installment-list-card')">
+          <div>
+            <h2>Parcela a Parcela</h2>
+            <div class="rh-sub" id="il-sub">1x a 18x · Preencha o valor da venda</div>
+          </div>
+          <span class="collapse-arrow">▲</span>
+        </div>
+        <div class="result-body" id="installment-list-body" style="padding:10px 20px">
+          <div class="empty-state">
+            <div class="empty-icon">📋</div>
+            Informe o valor da venda para ver a lista completa.
+          </div>
+        </div>
+      </div>
+
+      <!-- Simulação de Faturamento Mensal -->
+      <div class="result-card" id="monthly-sim-card">
+        <div class="result-head collapsible" onclick="toggleCollapse('monthly-sim-card')">
+          <div>
+            <h2>Simulação de Faturamento Mensal</h2>
+            <div class="rh-sub">Projete o ganho mensal com base no mix de vendas do cliente</div>
+          </div>
+          <span class="collapse-arrow">▲</span>
+        </div>
+        <div class="result-body">
+          <p class="ms-explainer">
+            💡 Informe <strong>como o faturamento do cliente se divide</strong> entre as formas de pagamento —
+            não é taxa, é a <strong>fatia (%) do total</strong> vendida em cada uma. Ex: se o cliente fatura R$ 50.000/mês
+            e metade é no débito, o campo "% Débito" é <strong>50</strong>. As três fatias juntas devem somar <strong>100%</strong>.
+          </p>
+
+          <div class="field">
+            <span class="field-label">Faturamento mensal estimado</span>
+            <div class="input-wrap">
+              <input type="number" id="ms-fat" placeholder="Ex: 50000" min="0" inputmode="numeric" />
+              <span class="input-suffix">R$</span>
+            </div>
+          </div>
+
+          <div class="comp-grid" style="margin-top:12px">
+            <div class="field">
+              <span class="field-label">% Débito <small class="ms-label-hint">(fatia do faturamento)</small></span>
+              <div class="input-wrap">
+                <input type="number" id="ms-pct-deb" placeholder="0" min="0" max="100" step="1" value="30" />
+                <span class="input-suffix">%</span>
+              </div>
+            </div>
+            <div class="field">
+              <span class="field-label">% Crédito 1x <small class="ms-label-hint">(fatia do faturamento)</small></span>
+              <div class="input-wrap">
+                <input type="number" id="ms-pct-cred" placeholder="0" min="0" max="100" step="1" value="30" />
+                <span class="input-suffix">%</span>
+              </div>
+            </div>
+            <div class="field">
+              <span class="field-label">% Parcelado <small class="ms-label-hint">(fatia do faturamento)</small></span>
+              <div class="input-wrap">
+                <input type="number" id="ms-pct-parc" placeholder="0" min="0" max="100" step="1" value="40" />
+                <span class="input-suffix">%</span>
+              </div>
+            </div>
+            <div class="field">
+              <span class="field-label">Parcela média</span>
+              <select id="ms-avg-inst">
+                <option value="2">2x</option>
+                <option value="3">3x</option>
+                <option value="4">4x</option>
+                <option value="5">5x</option>
+                <option value="6" selected>6x</option>
+                <option value="7">7x</option>
+                <option value="8">8x</option>
+                <option value="9">9x</option>
+                <option value="10">10x</option>
+                <option value="11">11x</option>
+                <option value="12">12x</option>
+                <option value="13">13x</option>
+                <option value="14">14x</option>
+                <option value="15">15x</option>
+                <option value="16">16x</option>
+                <option value="17">17x</option>
+                <option value="18">18x</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="ms-pct-sum" class="ms-sum-indicator" style="margin-top:10px"></div>
+
+          <div id="ms-result" style="margin-top:16px"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- COMPARATIVO TOGGLE -->
+  <div class="spacer"></div>
+  <button class="comp-toggle-btn" id="comp-toggle">
+    <span id="comp-arrow">▼</span>
+    <span id="comp-label">Ver comparativo completo — todas as modalidades</span>
+  </button>
+
+  <div class="comp-section" id="comp-section">
+    <div class="spacer"></div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Parcelas</th>
+            <th>Pagamento</th>
+            <th>Taxa Vero</th>
+            <th>Líq. Vero</th>
+            <th>Taxa Concorrente</th>
+            <th>Líq. Concorrente</th>
+            <th>Ganho c/ Vero</th>
+          </tr>
+        </thead>
+        <tbody id="comp-tbody"></tbody>
+      </table>
+    </div>
+    <div class="mob-cards" id="mob-cards"></div>
+  </div>
+
+</main>
+
+<footer>Simulador Vero · ZAZ Vendas · Taxas conforme Ofertas Vero 2026 · Antecipação estimada por prazo médio</footer>
+
+<!-- MODAL CONSULTA CNPJ -->
+<div class="modal-overlay" id="cnpj-modal-overlay" onclick="if(event.target===this) closeCnpjModal()">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div>
+        <h2>Consultar CNPJ</h2>
+        <div class="modal-sub">Dados públicos direto da Receita Federal</div>
+      </div>
+      <button class="modal-close" onclick="closeCnpjModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="cnpj-search-row">
+        <div class="input-wrap">
+          <input type="text" id="cnpj-input" placeholder="00.000.000/0000-00" inputmode="numeric" maxlength="18" />
+        </div>
+        <button class="cnpj-search-btn" id="cnpj-search-btn" onclick="buscarCNPJ()">Buscar</button>
+      </div>
+      <div class="cnpj-result-area" id="cnpj-result-area"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DE BOAS-VINDAS / COMO USAR -->
+<div class="modal-overlay" id="intro-modal-overlay" onclick="if(event.target===this) closeIntroModal()">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div>
+        <h2>Simulador de Taxas Vero</h2>
+        <div class="modal-sub">ZAZ Vendas · Guia rápido de uso</div>
+      </div>
+      <button class="modal-close" onclick="closeIntroModal()">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <div class="intro-mobile-alert">
+        <div class="intro-mobile-alert-title">📱 Abriu cortado ou incompleto no celular?</div>
+        <ol class="intro-steps">
+          <li>Toque nos <strong>três pontinhos (⋮)</strong> no canto superior direito do navegador</li>
+          <li>Escolha a opção <strong>"Site para computador"</strong> (Android) ou <strong>"Solicitar site para desktop"</strong> (iPhone)</li>
+          <li>A página recarrega e mostra tudo certinho — pode dar um leve zoom com dois dedos se precisar</li>
+        </ol>
+        <div class="intro-mobile-alert-sub">
+          💡 Se você abriu o link de dentro do WhatsApp, Instagram ou outro app, toque em "⋮" e escolha
+          <strong>"Abrir no navegador"</strong> (Chrome/Safari) antes — o navegador interno desses apps às vezes não carrega a página direito.
+        </div>
+      </div>
+
+      <div class="intro-section">
+        <div class="intro-section-title">O que este simulador faz</div>
+        <p class="intro-p">
+          Compara as taxas da <strong>Vero</strong> com o que o cliente paga hoje no concorrente (ou com outro plano Vero),
+          em qualquer forma de pagamento — de débito até parcelado em <strong>18x</strong>.
+        </p>
+      </div>
+
+      <div class="intro-section">
+        <div class="intro-section-title">Principais recursos</div>
+        <div class="intro-features">
+          <div class="intro-feature"><span>🔍</span> Consulta automática de dados do CNPJ do cliente</div>
+          <div class="intro-feature"><span>📊</span> Simulação parcela a parcela, de 1x a 18x</div>
+          <div class="intro-feature"><span>⚔️</span> Comparação lado a lado com o concorrente</div>
+          <div class="intro-feature"><span>📈</span> Projeção de ganho mensal (não só uma venda)</div>
+          <div class="intro-feature"><span>📄</span> Geração de proposta em PDF, com o nome do promotor</div>
+          <div class="intro-feature"><span>💬</span> Envio do PDF direto por WhatsApp, do celular</div>
+        </div>
+      </div>
+
+      <button class="intro-start-btn" onclick="closeIntroModal()">Entendi, começar a simular →</button>
+    </div>
+  </div>
+</div>
+
+<!-- Bibliotecas para gerar o PDF como arquivo real (necessário pra anexar no compartilhamento nativo) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<script>
+// ===================== DADOS DOS PLANOS =====================
+const PLAN_MIN_FAT = {
+  '0010': 3000,
+  '0011': 10000,
+  '0012': 10000,
+  '0013': 10000,
+  '0014': 20000,
+  '0015': 20000,
+  '0016': 40000,
+  '0017': 60000,
+  '0018': 60000,
+  '0019': 60000
+};
+
+const PLANS = {
+  '0010': {
+    fat: 'R$ 3.000',
+    opc: {
+      vm:  { deb: 0.0189, cred: 0.0389, p2a6: 0.0399, p7a12: 0.0399 },
+      elo: { deb: 0.0189, cred: 0.0389, p2a6: 0.0399, p7a12: 0.0399 },
+      vc:  { deb: 0.0199, cred: 0.04,   p2a12: 0.04  },
+      ban: 0.059,
+      pix: 0.0135,
+      antecip: 0.0319
+    },
+    aut: {
+      vm:  { deb: 0.0189, cred: 0.0199, p2a6: 0.0219, p7a12: 0.0219 },
+      elo: { deb: 0.0189, cred: 0.0199, p2a6: 0.0219, p7a12: 0.0219 },
+      vc:  { deb: 0.0199, cred: 0.04,   p2a12: 0.04  },
+      ban: 0.059,
+      pix: 0.0135,
+      antecip: 0.0279
+    }
+  },
+  '0011': {
+    fat: 'R$ 10.000',
+    opc: {
+      vm:  { deb: 0.0179, cred: 0.0309, p2a6: 0.0359, p7a12: 0.0359 },
+      elo: { deb: 0.0179, cred: 0.0309, p2a6: 0.0359, p7a12: 0.0359 },
+      vc:  { deb: 0.0199, cred: 0.04,   p2a12: 0.04  },
+      ban: 0.059,
+      pix: 0.0099,
+      antecip: 0.0239
+    },
+    aut: {
+      vm:  { deb: 0.0179, cred: 0.0179, p2a6: 0.0199, p7a12: 0.0199 },
+      elo: { deb: 0.0179, cred: 0.0179, p2a6: 0.0199, p7a12: 0.0199 },
+      vc:  { deb: 0.0199, cred: 0.04,   p2a12: 0.04  },
+      ban: 0.059,
+      pix: 0.0099,
+      antecip: 0.0209
+    }
+  },
+  '0012': {
+    fat: 'R$ 10.000',
+    opc: {
+      vm:  { deb: 0.0169, cred: 0.0299, p2a6: 0.0309, p7a12: 0.0309 },
+      elo: { deb: 0.0179, cred: 0.0309, p2a6: 0.0359, p7a12: 0.0359 },
+      vc:  { deb: 0.0199, cred: 0.04,   p2a12: 0.04  },
+      ban: 0.059,
+      pix: 0.0099,
+      antecip: 0.0219
+    },
+    aut: {
+      vm:  { deb: 0.0169, cred: 0.0179, p2a6: 0.0199, p7a12: 0.0199 },
+      elo: { deb: 0.0179, cred: 0.0179, p2a6: 0.0199, p7a12: 0.0199 },
+      vc:  { deb: 0.0199, cred: 0.04,   p2a12: 0.04  },
+      ban: 0.059,
+      pix: 0.0099,
+      antecip: 0.0189
+    }
+  },
+  '0013': {
+    fat: 'R$ 10.000',
+    opc: {
+      vm:  { deb: 0.0159, cred: 0.0289, p2a6: 0.0299, p7a12: 0.0299 },
+      elo: { deb: 0.0179, cred: 0.0309, p2a6: 0.0359, p7a12: 0.0359 },
+      vc:  { deb: 0.0199, cred: 0.04,   p2a12: 0.04  },
+      ban: 0.059,
+      pix: 0.0099,
+      antecip: 0.0219
+    },
+    aut: {
+      vm:  { deb: 0.0159, cred: 0.0179, p2a6: 0.0199, p7a12: 0.0199 },
+      elo: { deb: 0.0179, cred: 0.0179, p2a6: 0.0199, p7a12: 0.0199 },
+      vc:  { deb: 0.0199, cred: 0.04,   p2a12: 0.04  },
+      ban: 0.059,
+      pix: 0.0099,
+      antecip: 0.0189
+    }
+  },
+  '0014': {
+    fat: 'R$ 20.000',
+    opc: {
+      vm:  { deb: 0.0149, cred: 0.0259, p2a6: 0.0289, p7a12: 0.0289 },
+      elo: { deb: 0.0149, cred: 0.0259, p2a6: 0.0309, p7a12: 0.0309 },
+      vc:  { deb: 0.0199, cred: 0.04,   p2a12: 0.04  },
+      ban: 0.059,
+      pix: 0.0089,
+      antecip: 0.0209
+    },
+    aut: {
+      vm:  { deb: 0.0149, cred: 0.0179, p2a6: 0.0199, p7a12: 0.0199 },
+      elo: { deb: 0.0149, cred: 0.0179, p2a6: 0.0199, p7a12: 0.0199 },
+      vc:  { deb: 0.0199, cred: 0.04,   p2a12: 0.04  },
+      ban: 0.059,
+      pix: 0.0089,
+      antecip: 0.0179
+    }
+  },
+  '0015': {
+    fat: 'R$ 20.000',
+    opc: {
+      vm:  { deb: 0.0139, cred: 0.0239, p2a6: 0.0269, p7a12: 0.0269 },
+      elo: { deb: 0.0149, cred: 0.0259, p2a6: 0.0309, p7a12: 0.0309 },
+      vc:  { deb: 0.0199, cred: 0.04,   p2a12: 0.04  },
+      ban: 0.059,
+      pix: 0.0089,
+      antecip: 0.0209
+    },
+    aut: {
+      vm:  { deb: 0.0139, cred: 0.0179, p2a6: 0.0199, p7a12: 0.0199 },
+      elo: { deb: 0.0149, cred: 0.0179, p2a6: 0.0199, p7a12: 0.0199 },
+      vc:  { deb: 0.0199, cred: 0.04,   p2a12: 0.04  },
+      ban: 0.059,
+      pix: 0.0089,
+      antecip: 0.0179
+    }
+  },
+  '0016': {
+    fat: 'R$ 40.000',
+    opc: {
+      vm:  { deb: 0.0129, cred: 0.0209, p2a6: 0.0249, p7a12: 0.0249 },
+      elo: { deb: 0.0149, cred: 0.0259, p2a6: 0.0309, p7a12: 0.0309 },
+      vc:  { deb: 0.0199, cred: 0.04,   p2a12: 0.04  },
+      ban: 0.059,
+      pix: 0.0079,
+      antecip: 0.0209
+    },
+    aut: {
+      vm:  { deb: 0.0129, cred: 0.0179, p2a6: 0.0199, p7a12: 0.0199 },
+      elo: { deb: 0.0149, cred: 0.0179, p2a6: 0.0199, p7a12: 0.0199 },
+      vc:  { deb: 0.0199, cred: 0.04,   p2a12: 0.04  },
+      ban: 0.059,
+      pix: 0.0079,
+      antecip: 0.0169
+    }
+  },
+  '0017': {
+    fat: 'R$ 60.000',
+    opc: {
+      vm:  { deb: 0.0119, cred: 0.0199, p2a6: 0.0239, p7a12: 0.0239 },
+      elo: { deb: 0.0149, cred: 0.0259, p2a6: 0.0309, p7a12: 0.0309 },
+      vc:  { deb: 0.0199, cred: 0.04,   p2a12: 0.04  },
+      ban: 0.059,
+      pix: 0.0069,
+      antecip: 0.0199
+    },
+    aut: {
+      vm:  { deb: 0.0119, cred: 0.0179, p2a6: 0.0199, p7a12: 0.0199 },
+      elo: { deb: 0.0149, cred: 0.0179, p2a6: 0.0199, p7a12: 0.0199 },
+      vc:  { deb: 0.0199, cred: 0.04,   p2a12: 0.04  },
+      ban: 0.059,
+      pix: 0.0069,
+      antecip: 0.0159
+    }
+  },
+  '0018': {
+    fat: 'R$ 60.000',
+    opc: {
+      vm:  { deb: 0.0109, cred: 0.0199, p2a6: 0.0229, p7a12: 0.0239 },
+      elo: { deb: 0.0149, cred: 0.0259, p2a6: 0.0309, p7a12: 0.0309 },
+      vc:  { deb: 0.0199, cred: 0.04,   p2a12: 0.04  },
+      ban: 0.059,
+      pix: 0.0069,
+      antecip: 0.0179
+    },
+    aut: {
+      vm:  { deb: 0.0109, cred: 0.0179, p2a6: 0.0199, p7a12: 0.0199 },
+      elo: { deb: 0.0149, cred: 0.0249, p2a6: 0.0299, p7a12: 0.0299 },
+      vc:  { deb: 0.0199, cred: 0.04,   p2a12: 0.04  },
+      ban: 0.059,
+      pix: 0.0069,
+      antecip: 0.0149
+    }
+  },
+  '0019': {
+    fat: 'R$ 60.000',
+    opc: {
+      vm:  { deb: 0.0099, cred: 0.0189, p2a6: 0.0219, p7a12: 0.0239 },
+      elo: { deb: 0.0149, cred: 0.0259, p2a6: 0.0309, p7a12: 0.0309 },
+      vc:  { deb: 0.0199, cred: 0.04,   p2a12: 0.04  },
+      ban: 0.059,
+      pix: 0.0069,
+      antecip: 0.0179
+    },
+    aut: {
+      vm:  { deb: 0.0099, cred: 0.0179, p2a6: 0.0199, p7a12: 0.0199 },
+      elo: { deb: 0.0149, cred: 0.0249, p2a6: 0.0299, p7a12: 0.0299 },
+      vc:  { deb: 0.0199, cred: 0.04,   p2a12: 0.04  },
+      ban: 0.059,
+      pix: 0.0069,
+      antecip: 0.0149
+    }
+  }
+};
+
+// Modalidades para a tabela comparativa (1 a 18x)
+const COMP_ROWS = [
+  { label: '1x',  payment: 'Débito',  brand_key: 'deb',   type: 'debito',  inst: 1  },
+  { label: '1x',  payment: 'Crédito', brand_key: 'cred',  type: 'credito', inst: 1  },
+  { label: '2x',  payment: 'Crédito', brand_key: 'p2a6',  type: 'parc',    inst: 2  },
+  { label: '3x',  payment: 'Crédito', brand_key: 'p2a6',  type: 'parc',    inst: 3  },
+  { label: '4x',  payment: 'Crédito', brand_key: 'p2a6',  type: 'parc',    inst: 4  },
+  { label: '5x',  payment: 'Crédito', brand_key: 'p2a6',  type: 'parc',    inst: 5  },
+  { label: '6x',  payment: 'Crédito', brand_key: 'p2a6',  type: 'parc',    inst: 6  },
+  { label: '7x',  payment: 'Crédito', brand_key: 'p7a12', type: 'parc',    inst: 7  },
+  { label: '8x',  payment: 'Crédito', brand_key: 'p7a12', type: 'parc',    inst: 8  },
+  { label: '9x',  payment: 'Crédito', brand_key: 'p7a12', type: 'parc',    inst: 9  },
+  { label: '10x', payment: 'Crédito', brand_key: 'p7a12', type: 'parc',    inst: 10 },
+  { label: '11x', payment: 'Crédito', brand_key: 'p7a12', type: 'parc',    inst: 11 },
+  { label: '12x', payment: 'Crédito', brand_key: 'p7a12', type: 'parc',    inst: 12 },
+  { label: '13x', payment: 'Crédito', brand_key: 'p7a12', type: 'parc',    inst: 13 },
+  { label: '14x', payment: 'Crédito', brand_key: 'p7a12', type: 'parc',    inst: 14 },
+  { label: '15x', payment: 'Crédito', brand_key: 'p7a12', type: 'parc',    inst: 15 },
+  { label: '16x', payment: 'Crédito', brand_key: 'p7a12', type: 'parc',    inst: 16 },
+  { label: '17x', payment: 'Crédito', brand_key: 'p7a12', type: 'parc',    inst: 17 },
+  { label: '18x', payment: 'Crédito', brand_key: 'p7a12', type: 'parc',    inst: 18 },
+];
+
+// Estado
+const state = {
+  plan:           '0015',
+  antecipType:    'aut',
+  brand:          'vm',
+  method:         'debito',
+  inst:           2,
+  inclAdv:        true,
+  compMode:       'competitor',
+  compPlan:       '0016',
+  compAntecipType:'aut',
+  compInclAdv:    true
+};
+
+// ===================== UTILITÁRIOS =====================
+function fmtPct(n)  { return (n * 100).toFixed(2).replace('.', ',') + '%'; }
+function fmtBRL(n)  {
+  return 'R$ ' + n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function getPlanData() {
+  return PLANS[state.plan][state.antecipType];
+}
+
+function getAdvFactor(method, inst) {
+  if (method === 'debito' || method === 'ban' || method === 'pix') return 0;
+  if (method === 'credito') return 1;
+  return (inst + 1) / 2;
+}
+
+function getMDR(pd, brand, method, inst) {
+  if (brand === 'ban') return pd.ban;
+  if (brand === 'pix') return pd.pix;
+  const b = pd[brand];
+  if (!b) return null;
+  if (method === 'debito')  return b.deb  !== undefined ? b.deb  : null;
+  if (method === 'credito') return b.cred !== undefined ? b.cred : null;
+  if (method === 'parc') {
+    if (brand === 'vc') return b.p2a12; // VerdeCard tem taxa única para parcelado (2x a 18x)
+    return inst <= 6 ? b.p2a6 : b.p7a12; // 7x a 18x usam a mesma taxa p7a12
+  }
+  return null;
+}
+
+function calcVero(brand, method, inst, inclAdv) {
+  const pd  = getPlanData();
+  const mdr = getMDR(pd, brand, method, inst);
+  if (mdr === null) return null;
+
+  const isAut = state.antecipType === 'aut';
+  const fator = getAdvFactor(method, inst);
+
+  let advRate = 0;
+  if (fator > 0) {
+    if (isAut || inclAdv) {
+      advRate = pd.antecip * fator;
+    }
+  }
+
+  const total = 1 - (1 - mdr) * (1 - advRate);
+  return { mdr, fator, advRate, total };
+}
+
+function getComp() {
+  const p = id => {
+    const v = parseFloat(document.getElementById(id).value);
+    return isNaN(v) || v === 0 ? null : v / 100;
+  };
+  return {
+    debito:  p('c-debito'),
+    credito: p('c-credito'),
+    p2a6:    p('c-p2a6'),
+    p7a12:   p('c-p7a12'),
+    antecip: p('c-antecip') ?? 0
+  };
+}
+
+function calcComp(method, inst, comp) {
+  let base;
+  if (method === 'debito')  base = comp.debito;
+  else if (method === 'credito') base = comp.credito;
+  else if (method === 'parc') base = inst <= 6 ? comp.p2a6 : comp.p7a12;
+  else return null;
+  if (base === null) return null;
+
+  const fator   = getAdvFactor(method, inst);
+  const advRate = comp.antecip * fator;
+  const total   = 1 - (1 - base) * (1 - advRate);
+  return { base, advRate, total };
+}
+
+function getParcTable() {
+  const p = id => {
+    const v = parseFloat(document.getElementById(id).value);
+    return isNaN(v) || v === 0 ? null : v / 100;
+  };
+  return {
+    deb: p('pt-deb'),
+    1:  p('pt-1x'),
+    2:  p('pt-2x'),  3:  p('pt-3x'),  4:  p('pt-4x'),
+    5:  p('pt-5x'),  6:  p('pt-6x'),  7:  p('pt-7x'),
+    8:  p('pt-8x'),  9:  p('pt-9x'),  10: p('pt-10x'),
+    11: p('pt-11x'), 12: p('pt-12x'),
+    13: p('pt-13x'), 14: p('pt-14x'), 15: p('pt-15x'),
+    16: p('pt-16x'), 17: p('pt-17x'), 18: p('pt-18x')
+  };
+}
+
+function calcCompParcTable(method, inst) {
+  const pt = getParcTable();
+  let rate;
+  if (method === 'debito')  rate = pt.deb;
+  else if (method === 'credito') rate = pt[1];
+  else if (method === 'parc')    rate = pt[inst];
+  else return null;
+  if (rate === null || rate === undefined) return null;
+  // Taxa já composta — sem nenhum cálculo adicional
+  return { total: rate, mdr: rate, advRate: 0, fator: 0, isComposite: true };
+}
+
+function calcCompVero(brand, method, inst) {
+  const pd    = PLANS[state.compPlan][state.compAntecipType];
+  const mdr   = getMDR(pd, brand, method, inst);
+  if (mdr === null) return null;
+
+  const isAut = state.compAntecipType === 'aut';
+  const fator = getAdvFactor(method, inst);
+  let advRate = 0;
+  if (fator > 0 && (isAut || state.compInclAdv)) {
+    advRate = pd.antecip * fator;
+  }
+  const total = 1 - (1 - mdr) * (1 - advRate);
+  return { mdr, fator, advRate, total };
+}
+
+function updateCompVeroChip() {
+  const pd   = PLANS[state.compPlan][state.compAntecipType];
+  const isAut = state.compAntecipType === 'aut';
+  document.getElementById('comp-vero-antecip-rate').textContent = fmtPct(pd.antecip) + ' a.m.';
+  document.getElementById('comp-vero-antecip-desc').textContent = isAut
+    ? 'Antecipação automática embutida'
+    : 'Antecipação opcional — incluída no cálculo se marcado acima';
+  document.getElementById('comp-incl-adv-wrap').classList.toggle('hidden', isAut);
+}
+
+// ===================== RENDER TABELA DO PLANO =====================
+function renderPlanTable() {
+  const pd  = getPlanData();
+  const plan = state.plan;
+  const type = state.antecipType;
+
+  document.getElementById('plan-title').textContent   = `ZAZ ${plan}`;
+  document.getElementById('plan-fat-sub').textContent = `Faturamento mínimo: ${PLANS[plan].fat}`;
+
+  const badge = document.getElementById('plan-type-badge');
+  badge.textContent = type === 'aut' ? 'AUTOMÁTICA' : 'OPCIONAL';
+  badge.className   = `plan-type-badge ${type}`;
+
+  document.getElementById('antecip-rate-display').textContent = fmtPct(pd.antecip) + ' a.m.';
+  document.getElementById('antecip-type-desc').textContent =
+    type === 'aut'
+      ? 'Antecipação automática embutida nas taxas de crédito/parcelado'
+      : 'Cliente escolhe se quer antecipar; taxa aplicada somente se solicitado';
+
+  const rows = [
+    { label: 'Débito',           vm: pd.vm?.deb,    elo: pd.elo?.deb,    vc: pd.vc?.deb,   ban: pd.ban, pix: pd.pix, isDebito: true },
+    { label: 'Crédito 1x',       vm: pd.vm?.cred,   elo: pd.elo?.cred,   vc: pd.vc?.cred,  ban: null,   pix: null    },
+    { label: 'Parcelado 2–6x',   vm: pd.vm?.p2a6,   elo: pd.elo?.p2a6,   vc: pd.vc?.p2a12, ban: null,   pix: null    },
+    { label: 'Parcelado 7–18x',  vm: pd.vm?.p7a12,  elo: pd.elo?.p7a12,  vc: pd.vc?.p2a12, ban: null,   pix: null    },
+  ];
+
+  const cell = (val, highlight) => {
+    if (val === null || val === undefined) return '<td class="dash">—</td>';
+    return `<td class="${highlight ? 'hl' : ''}">${fmtPct(val)}</td>`;
+  };
+
+  let html = '';
+  for (const r of rows) {
+    html += `<tr>
+      <td>${r.label}</td>
+      ${cell(r.vm,  true)}
+      ${cell(r.elo, false)}
+      ${cell(r.vc,  false)}
+      ${cell(r.ban, false)}
+      ${cell(r.pix, false)}
+    </tr>`;
+  }
+
+  // Antecipação row
+  const antecipLabel = type === 'aut' ? 'Antecipação Auto (a.m.)' : 'Antecipação Opcional (a.m.)';
+  html += `<tr style="background:rgba(0,194,220,0.05)">
+    <td style="color:var(--accent-dark);font-weight:800">${antecipLabel}</td>
+    <td class="hl-accent" colspan="2">${fmtPct(pd.antecip)}</td>
+    <td class="dash" colspan="3">—</td>
+  </tr>`;
+
+  document.getElementById('plan-tbody').innerHTML = html;
+
+  document.getElementById('plan-antecip-foot').innerHTML =
+    type === 'aut'
+      ? `<strong>Antecipação automática:</strong> ${fmtPct(pd.antecip)} a.m. — já refletida nas taxas de crédito e parcelado`
+      : `<strong>Antecipação opcional:</strong> ${fmtPct(pd.antecip)} a.m. — cobrada somente quando o cliente solicita a antecipação`;
+}
+
+// ===================== RENDER RESULTADO PRINCIPAL =====================
+function render() {
+  renderPlanTable();
+
+  const saleValue = parseFloat(document.getElementById('saleValue').value);
+  const { brand, method, inst, inclAdv } = state;
+
+  if (isNaN(saleValue) || saleValue <= 0) {
+    document.getElementById('result-title').textContent = 'Resultado da Simulação';
+    document.getElementById('result-sub').textContent   = 'Preencha o valor da venda para calcular';
+    document.getElementById('result-body').innerHTML    =
+      '<div class="empty-state"><div class="empty-icon">🧮</div>Informe o valor da venda para ver o resultado.</div>';
+    renderComparison(null);
+    renderInstallmentList(null);
+    renderMonthlySim();
+    return;
+  }
+
+  const g = calcVero(brand, method, inst, inclAdv);
+  if (!g) {
+    document.getElementById('result-body').innerHTML =
+      '<div class="empty-state"><div class="empty-icon">⚠️</div>Modalidade não disponível para esta bandeira.</div>';
+    renderComparison(null);
+    renderInstallmentList(saleValue);
+    renderMonthlySim();
+    return;
+  }
+
+  const gL = saleValue * (1 - g.total);
+  const gC = saleValue * g.total;
+
+  const isVeroComp  = state.compMode === 'vero';
+  const isParcTable = state.compMode === 'parc-table';
+
+  let c, cL, cC, gain;
+  if (isVeroComp) {
+    c = calcCompVero(brand, method, inst);
+  } else if (isParcTable) {
+    c = calcCompParcTable(method, inst);
+  } else {
+    const comp = getComp();
+    c = (brand === 'vm' || brand === 'elo') ? calcComp(method, inst, comp) : null;
+  }
+  cL   = c ? saleValue * (1 - c.total) : null;
+  cC   = c ? saleValue * c.total       : null;
+  gain = cL !== null ? gL - cL : null;
+
+  const methodLabel =
+    method === 'debito'  ? 'Débito' :
+    method === 'credito' ? 'Crédito à Vista' :
+    method === 'pix'     ? 'PIX' :
+    method === 'ban'     ? 'Voucher Banricard' :
+    `Crédito ${inst}x`;
+
+  const brandLabel =
+    brand === 'vm'  ? 'Visa / Mastercard' :
+    brand === 'elo' ? 'Elo / Cabal'       :
+    brand === 'vc'  ? 'VerdeCard'         :
+    brand === 'ban' ? 'Banricard'         : 'PIX';
+
+  const compLabel = isVeroComp
+    ? `ZAZ ${state.compPlan} · ${state.compAntecipType === 'aut' ? 'Automática' : 'Opcional'}`
+    : isParcTable ? 'Concorrente (taxa composta)' : 'Concorrente';
+
+  document.getElementById('result-title').textContent = `${methodLabel} — ${brandLabel}`;
+  document.getElementById('result-sub').textContent   = `Plano ZAZ ${state.plan} · ${state.antecipType === 'aut' ? 'Antecipação Automática' : 'Antecipação Opcional'}`;
+
+  const advRow = g.advRate > 0
+    ? `<div class="detail-row">
+         <span class="dk">Antecipação (fator ${g.fator.toFixed(1)}×)</span>
+         <span class="dv">${fmtPct(g.advRate)}</span>
+       </div>` : '';
+
+  const compAdvRow = (c && c.advRate > 0)
+    ? `<div class="detail-row">
+         <span class="dk">Antecipação (fator ${c.fator ? c.fator.toFixed(1) : ''}×)</span>
+         <span class="dv">${fmtPct(c.advRate)}</span>
+       </div>` : '';
+
+  const compSideEmpty = isVeroComp
+    ? `<p style="font-size:12px;color:var(--subtext);padding-top:8px;line-height:1.5">Bandeira não disponível neste plano.</p>`
+    : isParcTable
+    ? `<p style="font-size:12px;color:var(--subtext);padding-top:8px;line-height:1.5">Preencha a taxa composta para esta modalidade.</p>`
+    : `<p style="font-size:12px;color:var(--subtext);padding-top:8px;line-height:1.5">Preencha as taxas do concorrente para comparar.</p>`;
+
+  const compSide = c
+    ? `<div>
+         <div class="side-label comp">⚫ ${compLabel}</div>
+         ${isParcTable
+           ? `<div class="detail-row">
+                <span class="dk">Taxa composta (já com antecip.)</span>
+                <span class="dv" style="color:var(--subtext)">${fmtPct(c.total)}</span>
+              </div>`
+           : `<div class="detail-row">
+                <span class="dk">${isVeroComp ? 'Taxa MDR' : 'Taxa base'}</span>
+                <span class="dv">${fmtPct(isVeroComp ? c.mdr : c.base)}</span>
+              </div>
+              ${compAdvRow}`
+         }
+         <div class="detail-row total-row comp-total">
+           <span class="dk"><strong>Taxa total</strong></span>
+           <span class="dv">${fmtPct(c.total)}</span>
+         </div>
+       </div>`
+    : `<div>
+         <div class="side-label comp">⚫ ${compLabel}</div>
+         ${compSideEmpty}
+       </div>`;
+
+  const liqCompLabel = isVeroComp ? `Você recebe (${compLabel})` : 'Você recebe (Concorrente)';
+  const liqComp = cL !== null
+    ? `<div class="liquido-box comp-box">
+         <div class="lb-label">${liqCompLabel}</div>
+         <div class="lb-value" style="color:var(--subtext)">${fmtBRL(cL)}</div>
+         <div class="lb-cost">Custo: ${fmtBRL(cC)}</div>
+       </div>` : '';
+
+  const parcelaInfo = method === 'parc'
+    ? `<div class="lb-parcela">Por parcela: <strong>${fmtBRL(gL / inst)}</strong></div>` : '';
+
+  const winnerName  = isVeroComp ? `ZAZ ${state.plan}` : 'Vero';
+  const loserName   = isVeroComp ? `ZAZ ${state.compPlan}` : 'Concorrente';
+
+  const gainHtml = gain !== null
+    ? `<div class="gain-banner ${gain > 0.005 ? 'positive' : gain < -0.005 ? 'negative' : 'neutral'}">
+         <span class="gb-icon">${gain > 0.005 ? '✅' : gain < -0.005 ? '❌' : '➖'}</span>
+         <span>
+           ${gain > 0.005
+             ? `${winnerName} rende <strong>+${fmtBRL(gain)}</strong> a mais nesta venda`
+             : gain < -0.005
+             ? `${loserName} rende <strong>+${fmtBRL(Math.abs(gain))}</strong> a mais nesta venda`
+             : 'Taxas praticamente equivalentes'}
+         </span>
+       </div>` : '';
+
+  const breakevenHtml = buildBreakevenHtml(saleValue);
+
+  document.getElementById('result-body').innerHTML = `
+    <div class="two-col">
+      <div>
+        <div class="side-label">🔵 Vero</div>
+        <div class="detail-row">
+          <span class="dk">Taxa MDR</span>
+          <span class="dv">${fmtPct(g.mdr)}</span>
+        </div>
+        ${advRow}
+        <div class="detail-row total-row">
+          <span class="dk"><strong>Taxa total</strong></span>
+          <span class="dv">${fmtPct(g.total)}</span>
+        </div>
+      </div>
+      ${compSide}
+    </div>
+    <div class="two-col" style="margin-bottom:0">
+      <div class="liquido-box vero-box">
+        <div class="lb-label">Você recebe (Vero)</div>
+        <div class="lb-value">${fmtBRL(gL)}</div>
+        <div class="lb-cost">Custo: ${fmtBRL(gC)}</div>
+        ${parcelaInfo}
+      </div>
+      ${liqComp}
+    </div>
+    ${gainHtml}
+    ${breakevenHtml}
+  `;
+
+  renderComparison(saleValue);
+  renderInstallmentList(saleValue);
+  renderMonthlySim();
+}
+
+// ===================== RENDER COMPARATIVO =====================
+function renderComparison(saleValue) {
+  const tbody    = document.getElementById('comp-tbody');
+  const mobCards = document.getElementById('mob-cards');
+
+  if (!saleValue) {
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--subtext);font-size:13px">Preencha o valor da venda para ver o comparativo.</td></tr>`;
+    mobCards.innerHTML = '';
+    return;
+  }
+
+  const brand      = state.brand;
+  const inclAdv    = state.inclAdv;
+  const isVeroComp  = state.compMode === 'vero';
+  const isParcTable = state.compMode === 'parc-table';
+  const comp        = (!isVeroComp && !isParcTable) ? getComp() : null;
+
+  const colLabel2 = isVeroComp ? `ZAZ ${state.compPlan}` : 'Concorrente';
+
+  // Atualiza cabeçalho da tabela
+  const ths = document.querySelectorAll('#comp-section thead th');
+  if (ths.length >= 6) {
+    ths[4].textContent = `Taxa ${colLabel2}`;
+    ths[5].textContent = `Líq. ${colLabel2}`;
+  }
+
+  // PIX / Banricard — linha única
+  if (brand === 'pix' || brand === 'ban') {
+    const pd  = getPlanData();
+    const mdr = brand === 'pix' ? pd.pix : pd.ban;
+    const liq = saleValue * (1 - mdr);
+    const tag = brand === 'pix'
+      ? '<span class="tag tag-pix">PIX</span>'
+      : '<span class="tag tag-debit">Voucher</span>';
+    tbody.innerHTML = `
+      <tr>
+        <td>1x</td><td>${tag}</td>
+        <td>${fmtPct(mdr)}</td><td>${fmtBRL(liq)}</td>
+        <td><span class="dash">—</span></td>
+        <td><span class="dash">—</span></td>
+        <td><span class="dash">—</span></td>
+      </tr>`;
+    mobCards.innerHTML = '';
+    return;
+  }
+
+  let tableHTML = '';
+  let cardsHTML = '';
+
+  for (const row of COMP_ROWS) {
+    const g  = calcVero(brand, row.type, row.inst, inclAdv);
+    if (!g) continue;
+    const gL = saleValue * (1 - g.total);
+
+    const c  = isVeroComp   ? calcCompVero(brand, row.type, row.inst)
+             : isParcTable  ? calcCompParcTable(row.type, row.inst)
+             :                calcComp(row.type, row.inst, comp);
+    const cL   = c ? saleValue * (1 - c.total) : null;
+    const gain = cL !== null ? gL - cL : null;
+
+    const gainTd =
+      gain === null ? '<span class="dash">—</span>' :
+      gain >  0.005 ? `<span class="g-pos">+${fmtBRL(gain)}</span>` :
+      gain < -0.005 ? `<span class="g-neg">${fmtBRL(gain)}</span>` :
+      `<span class="g-zero">—</span>`;
+
+    const payTag = row.type === 'debito'
+      ? `<span class="tag tag-debit">Débito</span>`
+      : `<span class="tag tag-credit">Crédito</span>`;
+
+    tableHTML += `
+      <tr>
+        <td>${row.label}</td>
+        <td>${payTag}</td>
+        <td>${fmtPct(g.total)}</td>
+        <td>${fmtBRL(gL)}</td>
+        <td>${c ? fmtPct(c.total) : '<span class="dash">—</span>'}</td>
+        <td>${cL !== null ? fmtBRL(cL) : '<span class="dash">—</span>'}</td>
+        <td>${gainTd}</td>
+      </tr>`;
+
+    const gainStyle =
+      gain === null ? `background:var(--bg);color:var(--subtext)` :
+      gain >  0.005 ? `background:var(--success-bg);color:#1a7a3a` :
+      gain < -0.005 ? `background:var(--danger-bg);color:#c0392b` :
+      `background:var(--bg);color:var(--subtext)`;
+
+    const winnerName = isVeroComp ? `ZAZ ${state.plan}` : 'Vero';
+    const loserName  = isVeroComp ? `ZAZ ${state.compPlan}` : 'Concorrente';
+    const gainText =
+      gain === null ? '—' :
+      gain >  0.005 ? `✅ ${winnerName} rende +${fmtBRL(gain)} a mais` :
+      gain < -0.005 ? `❌ ${loserName} rende +${fmtBRL(Math.abs(gain))} a mais` :
+      '➖ Equivalente';
+
+    cardsHTML += `
+      <div class="mob-card">
+        <div class="mob-card-head"><div class="mob-parcela">${row.label} ${payTag}</div></div>
+        <div class="mob-grid">
+          <div class="mob-metric"><div class="mm-label">Taxa ZAZ ${state.plan}</div><div class="mm-val primary">${fmtPct(g.total)}</div></div>
+          <div class="mob-metric"><div class="mm-label">Líq. ZAZ ${state.plan}</div><div class="mm-val">${fmtBRL(gL)}</div></div>
+          <div class="mob-metric"><div class="mm-label">Taxa ${colLabel2}</div><div class="mm-val muted">${c ? fmtPct(c.total) : '—'}</div></div>
+          <div class="mob-metric"><div class="mm-label">Líq. ${colLabel2}</div><div class="mm-val muted">${cL !== null ? fmtBRL(cL) : '—'}</div></div>
+        </div>
+        ${gain !== null ? `<div class="mob-gain" style="${gainStyle}">${gainText}</div>` : ''}
+      </div>`;
+  }
+
+  tbody.innerHTML    = tableHTML;
+  mobCards.innerHTML = cardsHTML;
+}
+
+// ===================== PONTO DE EQUILÍBRIO (BREAKEVEN) =====================
+function calcBreakeven(saleValue) {
+  const brand = state.brand;
+  if (!saleValue || brand === 'pix' || brand === 'ban') return null;
+
+  const isVeroComp  = state.compMode === 'vero';
+  const isParcTable = state.compMode === 'parc-table';
+  const comp = (!isVeroComp && !isParcTable) ? getComp() : null;
+
+  const points = [];
+  for (let n = 1; n <= 18; n++) {
+    const method = n === 1 ? 'credito' : 'parc';
+    const g = calcVero(brand, method, n, state.inclAdv);
+    if (!g) continue;
+    const c = isVeroComp   ? calcCompVero(brand, method, n)
+            : isParcTable  ? calcCompParcTable(method, n)
+            : (brand === 'vm' || brand === 'elo') ? calcComp(method, n, comp) : null;
+    if (!c) continue;
+
+    const gL = saleValue * (1 - g.total);
+    const cL = saleValue * (1 - c.total);
+    points.push({ n, diff: gL - cL });
+  }
+
+  if (points.length === 0) return null;
+
+  const THRESHOLD = 0.01; // R$ — abaixo disso, considera empate
+  const sign = d => (d > THRESHOLD ? 1 : d < -THRESHOLD ? -1 : 0);
+
+  const segments = [];
+  let cur = null;
+  for (const pt of points) {
+    const s = sign(pt.diff);
+    if (!cur || cur.sign !== s) {
+      cur = { sign: s, from: pt.n, to: pt.n };
+      segments.push(cur);
+    } else {
+      cur.to = pt.n;
+    }
+  }
+  return segments;
+}
+
+function buildBreakevenHtml(saleValue) {
+  const segments = calcBreakeven(saleValue);
+  if (!segments) return '';
+
+  const isVeroComp = state.compMode === 'vero';
+  const winnerName = isVeroComp ? `ZAZ ${state.plan}` : 'Vero';
+  const loserName  = isVeroComp ? `ZAZ ${state.compPlan}` : 'Concorrente';
+  const label = seg => (seg.from === seg.to ? `${seg.from}x` : `${seg.from}x–${seg.to}x`);
+
+  const allSame = segments.every(s => s.sign === segments[0].sign);
+  let text;
+
+  if (allSame) {
+    if (segments[0].sign === 1)      text = `<strong>${winnerName}</strong> é mais vantajosa em todas as parcelas simuladas (1x a 18x)`;
+    else if (segments[0].sign === -1) text = `<strong>${loserName}</strong> é mais vantajoso em todas as parcelas simuladas (1x a 18x)`;
+    else                               text = `Taxas praticamente equivalentes em todas as parcelas (1x a 18x)`;
+  } else if (segments.length <= 3) {
+    text = segments.map(s => {
+      const who = s.sign === 1 ? winnerName : s.sign === -1 ? loserName : 'Empate técnico';
+      return `<strong>${label(s)}</strong>: ${who} vence`;
+    }).join(' &nbsp;→&nbsp; ');
+  } else {
+    text = `O resultado varia bastante por parcela — veja a lista completa abaixo para o detalhe`;
+  }
+
+  return `
+    <div class="breakeven-banner">
+      <span class="bb-icon">📈</span>
+      <div>
+        <div class="bb-label">Ponto de Equilíbrio</div>
+        <div class="bb-text">${text}</div>
+      </div>
+    </div>`;
+}
+
+// ===================== RENDER LISTA PARCELA A PARCELA (1x-18x) =====================
+function renderInstallmentList(saleValue) {
+  const listBody = document.getElementById('installment-list-body');
+  const subEl    = document.getElementById('il-sub');
+  const brand    = state.brand;
+
+  if (!saleValue || isNaN(saleValue) || saleValue <= 0) {
+    subEl.textContent = '1x a 18x · Preencha o valor da venda';
+    listBody.innerHTML = '<div class="empty-state"><div class="empty-icon">📋</div>Informe o valor da venda para ver a lista completa.</div>';
+    return;
+  }
+
+  // PIX / Banricard não parcelam — mostra só a linha à vista
+  if (brand === 'pix' || brand === 'ban') {
+    const pd  = getPlanData();
+    const mdr = brand === 'pix' ? pd.pix : pd.ban;
+    const liq = saleValue * (1 - mdr);
+    subEl.textContent = brand === 'pix' ? 'PIX · pagamento à vista' : 'Voucher Banricard · pagamento à vista';
+    listBody.innerHTML = `
+      <div class="il-row il-highlight">
+        <span class="il-n">1x</span>
+        <span class="il-liq">${fmtBRL(liq)}</span>
+        <span class="il-taxa">${fmtPct(mdr)}</span>
+      </div>`;
+    return;
+  }
+
+  const brandLabel =
+    brand === 'vm'  ? 'Visa/Mastercard' :
+    brand === 'elo' ? 'Elo/Cabal'       : 'VerdeCard';
+  subEl.textContent = `${brandLabel} · Plano ZAZ ${state.plan} · ${state.antecipType === 'aut' ? 'Antecip. Automática' : 'Antecip. Opcional'}`;
+
+  let rowsHtml = '';
+
+  // 1x — crédito à vista
+  const g1 = calcVero(brand, 'credito', 1, state.inclAdv);
+  if (g1) {
+    const liq = saleValue * (1 - g1.total);
+    const highlight = state.method === 'credito';
+    rowsHtml += `
+      <div class="il-row ${highlight ? 'il-highlight' : ''}">
+        <span class="il-n">1x</span>
+        <span class="il-liq">${fmtBRL(liq)}</span>
+        <span class="il-taxa">${fmtPct(g1.total)}</span>
+      </div>`;
+  }
+
+  // 2x a 18x — parcelado
+  for (let n = 2; n <= 18; n++) {
+    const g = calcVero(brand, 'parc', n, state.inclAdv);
+    if (!g) continue;
+    const liq = saleValue * (1 - g.total);
+    const highlight = state.method === 'parc' && state.inst === n;
+    rowsHtml += `
+      <div class="il-row ${highlight ? 'il-highlight' : ''}">
+        <span class="il-n">${n}x</span>
+        <span class="il-liq">${fmtBRL(liq)}</span>
+        <span class="il-taxa">${fmtPct(g.total)}</span>
+      </div>`;
+  }
+
+  listBody.innerHTML = rowsHtml || '<div class="empty-state"><div class="empty-icon">⚠️</div>Parcelamento não disponível para esta bandeira.</div>';
+}
+
+// ===================== FILTRO POR FATURAMENTO =====================
+function filterPlansByFat() {
+  const fat = parseFloat(document.getElementById('faturamento').value);
+  const sel = document.getElementById('plan-select');
+  const chip = document.getElementById('fat-chip');
+  const chipText = document.getElementById('fat-chip-text');
+  const chipPlans = document.getElementById('fat-chip-plans');
+
+  if (isNaN(fat) || fat <= 0) {
+    // Sem faturamento: habilita todos
+    Array.from(sel.options).forEach(o => { o.disabled = false; o.style.color = ''; });
+    chip.classList.add('hidden');
+    return;
+  }
+
+  let available = [];
+  let blocked = [];
+
+  Array.from(sel.options).forEach(o => {
+    const minFat = PLAN_MIN_FAT[o.value];
+    if (minFat <= fat) {
+      o.disabled = false;
+      o.style.color = '';
+      available.push(o.value);
+    } else {
+      o.disabled = true;
+      o.style.color = '#C7C7CC';
+      blocked.push(o.value);
+    }
+  });
+
+  // Se o plano selecionado ficou bloqueado, vai para o melhor disponível
+  if (PLAN_MIN_FAT[state.plan] > fat && available.length > 0) {
+    const best = available[available.length - 1];
+    state.plan = best;
+    sel.value = best;
+  }
+
+  chip.classList.remove('hidden', 'ok', 'low', 'info');
+
+  if (available.length === 0) {
+    chip.classList.add('low');
+    chipText.textContent = '⚠️ Faturamento abaixo do mínimo (R$ 3.000)';
+    chipPlans.textContent = '';
+  } else {
+    const fatFmt = fat.toLocaleString('pt-BR', { minimumFractionDigits: 0 });
+    chip.classList.add('ok');
+    chipText.textContent = `✅ ${available.length} plano${available.length > 1 ? 's' : ''} disponível${available.length > 1 ? 'is' : ''}`;
+    chipPlans.textContent = `ZAZ ${available.join(', ')}`;
+  }
+}
+
+// ===================== EVENTOS =====================
+function bindToggle(groupId, stateKey, cb) {
+  document.getElementById(groupId).querySelectorAll('.tgl').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.getElementById(groupId).querySelectorAll('.tgl').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      state[stateKey] = btn.dataset.val;
+      if (cb) cb();
+      render();
+    });
+  });
+}
+
+bindToggle('antecip-type-group', 'antecipType', () => {
+  const isAut = state.antecipType === 'aut';
+  document.getElementById('antecip-toggle-wrap').classList.toggle('hidden', isAut);
+  if (isAut) state.inclAdv = true;
+});
+
+bindToggle('brand-group', 'brand', () => {
+  const brand  = state.brand;
+  const noParc = brand === 'ban' || brand === 'pix';
+  document.getElementById('method-field').classList.toggle('hidden', noParc);
+  document.getElementById('inst-field').classList.add('hidden');
+  if (noParc) state.method = 'debito';
+});
+
+bindToggle('method-group', 'method', () => {
+  document.getElementById('inst-field').classList.toggle('hidden', state.method !== 'parc');
+});
+
+document.getElementById('installments').addEventListener('change', e => {
+  state.inst = parseInt(e.target.value);
+  render();
+});
+
+document.getElementById('includeAdv').addEventListener('change', e => {
+  state.inclAdv = e.target.checked;
+  render();
+});
+
+// Modo de comparação
+bindToggle('comp-mode-group', 'compMode', () => {
+  const mode = state.compMode;
+  document.getElementById('comp-competitor-panel').classList.toggle('hidden', mode !== 'competitor');
+  document.getElementById('comp-parc-panel').classList.toggle('hidden',       mode !== 'parc-table');
+  document.getElementById('comp-vero-panel').classList.toggle('hidden',       mode !== 'vero');
+  if (mode === 'vero') updateCompVeroChip();
+});
+
+// Inputs da tabela por parcela
+['pt-deb','pt-1x','pt-2x','pt-3x','pt-4x','pt-5x','pt-6x',
+ 'pt-7x','pt-8x','pt-9x','pt-10x','pt-11x','pt-12x',
+ 'pt-13x','pt-14x','pt-15x','pt-16x','pt-17x','pt-18x'].forEach(id => {
+  document.getElementById(id).addEventListener('input', render);
+});
+
+// Plano Vero comparado
+document.getElementById('comp-plan-select').addEventListener('change', e => {
+  state.compPlan = e.target.value;
+  updateCompVeroChip();
+  render();
+});
+
+// Antecipação do plano comparado
+bindToggle('comp-antecip-group', 'compAntecipType', () => {
+  updateCompVeroChip();
+});
+
+// Checkbox antecipação opcional do plano comparado
+document.getElementById('compInclAdv').addEventListener('change', e => {
+  state.compInclAdv = e.target.checked;
+  render();
+});
+
+document.getElementById('faturamento').addEventListener('input', () => {
+  filterPlansByFat();
+  render();
+});
+
+document.getElementById('plan-select').addEventListener('change', e => {
+  state.plan = e.target.value;
+  render();
+});
+
+['saleValue','c-debito','c-credito','c-p2a6','c-p7a12','c-antecip'].forEach(id => {
+  document.getElementById(id).addEventListener('input', render);
+});
+
+// Toggle comparativo
+document.getElementById('comp-toggle').addEventListener('click', () => {
+  const section = document.getElementById('comp-section');
+  const isOpen  = section.classList.toggle('open');
+  document.getElementById('comp-arrow').textContent = isOpen ? '▲' : '▼';
+  document.getElementById('comp-label').textContent = isOpen
+    ? 'Ocultar comparativo'
+    : 'Ver comparativo completo — todas as modalidades';
+});
+
+// ===================== GERAÇÃO DO PDF =====================
+function buildProposalHTML(includeAutoPrint) {
+  const planKey     = state.plan;
+  const antecipType = state.antecipType;
+  const pd          = PLANS[planKey][antecipType];
+  const isAut       = antecipType === 'aut';
+  const estab       = document.getElementById('estab-name').value.trim() || '—';
+  const promoter    = document.getElementById('promoter-name').value.trim();
+  const inclComp    = document.getElementById('pdf-incl-comp').checked;
+  const today       = new Date().toLocaleDateString('pt-BR', { day:'2-digit', month:'long', year:'numeric' });
+
+  const p   = n => (n * 100).toFixed(2).replace('.', ',') + '%';
+  const brl = n => 'R$ ' + n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+  // ── Dados da Simulação de Faturamento Mensal (se preenchidos) ──
+  const msFatVal  = parseFloat(document.getElementById('ms-fat').value);
+  const msPctDeb  = parseFloat(document.getElementById('ms-pct-deb').value)  || 0;
+  const msPctCred = parseFloat(document.getElementById('ms-pct-cred').value) || 0;
+  const msPctParc = parseFloat(document.getElementById('ms-pct-parc').value) || 0;
+  const msAvgInst = parseInt(document.getElementById('ms-avg-inst').value);
+  const msSumPct  = msPctDeb + msPctCred + msPctParc;
+  const msValid   = msFatVal > 0 && Math.abs(msSumPct - 100) < 0.5;
+
+  let monthlySimData = null;
+  if (msValid) {
+    const brandMS = state.brand;
+    const gDebMS  = calcVero(brandMS, 'debito',  1,         state.inclAdv);
+    const gCredMS = calcVero(brandMS, 'credito', 1,         state.inclAdv);
+    const gParcMS = calcVero(brandMS, 'parc',    msAvgInst, state.inclAdv);
+
+    const isVeroCompMS  = state.compMode === 'vero';
+    const isParcTableMS = state.compMode === 'parc-table';
+    const compMS = (!isVeroCompMS && !isParcTableMS) ? getComp() : null;
+
+    const cDebMS  = isVeroCompMS ? calcCompVero(brandMS, 'debito', 1)          : isParcTableMS ? calcCompParcTable('debito', 1)          : calcComp('debito', 1, compMS);
+    const cCredMS = isVeroCompMS ? calcCompVero(brandMS, 'credito', 1)         : isParcTableMS ? calcCompParcTable('credito', 1)         : calcComp('credito', 1, compMS);
+    const cParcMS = isVeroCompMS ? calcCompVero(brandMS, 'parc', msAvgInst)    : isParcTableMS ? calcCompParcTable('parc', msAvgInst)    : calcComp('parc', msAvgInst, compMS);
+
+    const volDebMS  = msFatVal * (msPctDeb  / 100);
+    const volCredMS = msFatVal * (msPctCred / 100);
+    const volParcMS = msFatVal * (msPctParc / 100);
+
+    const veroLiqMS =
+      (gDebMS  ? volDebMS  * (1 - gDebMS.total)  : volDebMS) +
+      (gCredMS ? volCredMS * (1 - gCredMS.total) : volCredMS) +
+      (gParcMS ? volParcMS * (1 - gParcMS.total) : volParcMS);
+
+    let compLiqMS = null;
+    if (cDebMS || cCredMS || cParcMS) {
+      compLiqMS =
+        (cDebMS  ? volDebMS  * (1 - cDebMS.total)  : volDebMS) +
+        (cCredMS ? volCredMS * (1 - cCredMS.total) : volCredMS) +
+        (cParcMS ? volParcMS * (1 - cParcMS.total) : volParcMS);
+    }
+
+    monthlySimData = {
+      fat: msFatVal, pctDeb: msPctDeb, pctCred: msPctCred, pctParc: msPctParc, avgInst: msAvgInst,
+      veroLiq: veroLiqMS, compLiq: compLiqMS,
+      gainMonthly: compLiqMS !== null ? veroLiqMS - compLiqMS : null,
+      compLabel: isVeroCompMS ? `ZAZ ${state.compPlan}` : 'Concorrente'
+    };
+  }
+
+  const instRows = [
+    { label:'Débito',       mdr: pd.vm?.deb,   inst:0,  isParc:false, isDebito:true },
+    { label:'Crédito 1x',   mdr: pd.vm?.cred,  inst:1,  isParc:false },
+    { label:'Parcelado 2x', mdr: pd.vm?.p2a6,  inst:2,  isParc:true  },
+    { label:'Parcelado 3x', mdr: pd.vm?.p2a6,  inst:3,  isParc:true  },
+    { label:'Parcelado 4x', mdr: pd.vm?.p2a6,  inst:4,  isParc:true  },
+    { label:'Parcelado 5x', mdr: pd.vm?.p2a6,  inst:5,  isParc:true  },
+    { label:'Parcelado 6x', mdr: pd.vm?.p2a6,  inst:6,  isParc:true  },
+    { label:'Parcelado 7x', mdr: pd.vm?.p7a12, inst:7,  isParc:true  },
+    { label:'Parcelado 8x', mdr: pd.vm?.p7a12, inst:8,  isParc:true  },
+    { label:'Parcelado 9x', mdr: pd.vm?.p7a12, inst:9,  isParc:true  },
+    { label:'Parcelado 10x',mdr: pd.vm?.p7a12, inst:10, isParc:true  },
+    { label:'Parcelado 11x',mdr: pd.vm?.p7a12, inst:11, isParc:true  },
+    { label:'Parcelado 12x',mdr: pd.vm?.p7a12, inst:12, isParc:true  },
+    { label:'Parcelado 13x',mdr: pd.vm?.p7a12, inst:13, isParc:true  },
+    { label:'Parcelado 14x',mdr: pd.vm?.p7a12, inst:14, isParc:true  },
+    { label:'Parcelado 15x',mdr: pd.vm?.p7a12, inst:15, isParc:true  },
+    { label:'Parcelado 16x',mdr: pd.vm?.p7a12, inst:16, isParc:true  },
+    { label:'Parcelado 17x',mdr: pd.vm?.p7a12, inst:17, isParc:true  },
+    { label:'Parcelado 18x',mdr: pd.vm?.p7a12, inst:18, isParc:true  },
+  ];
+
+  const showLiq  = document.getElementById('pdf-show-liq').checked;
+
+  // ── Usa o valor da venda simulada como base, se preenchido; senão cai no padrão de R$1.000 ──
+  const saleValueForPdf = parseFloat(document.getElementById('saleValue').value);
+  const hasSaleValuePdf = saleValueForPdf > 0;
+  const pdfBasis = hasSaleValuePdf ? saleValueForPdf : 1000;
+
+  // ── Resolve comparison label & data ──────────────────────────
+  const mode     = state.compMode;
+  let compLabel2 = '';
+  let compSubtitle2 = '';
+  let getCComp   = null; // fn(r) -> rate | null
+
+  if (inclComp) {
+    if (mode === 'vero') {
+      const cpd    = PLANS[state.compPlan][state.compAntecipType];
+      const cIsAut = state.compAntecipType === 'aut';
+      compLabel2   = `ZAZ ${state.compPlan}`;
+      compSubtitle2 = `ZAZ ${planKey} vs ZAZ ${state.compPlan} · ${isAut?'Automática':'Opcional'} × ${cIsAut?'Automática':'Opcional'} · Visa/Mastercard`;
+      getCComp = r => {
+        const cMDR = getMDR(cpd, 'vm', r.isDebito ? 'debito' : r.isParc ? 'parc' : 'credito', r.inst);
+        if (cMDR == null) return null;
+        const fator = r.isDebito ? 0 : r.isParc ? (r.inst + 1) / 2 : 1;
+        const cAdv  = (!r.isDebito && (cIsAut || state.compInclAdv)) ? cpd.antecip * fator : 0;
+        return 1 - (1 - cMDR) * (1 - cAdv);
+      };
+    } else if (mode === 'parc-table') {
+      const pt   = getParcTable();
+      compLabel2 = 'Concorrente';
+      compSubtitle2 = `Vero vs Concorrente (taxa composta informada) · Visa/Mastercard`;
+      getCComp = r => r.isDebito ? pt.deb : r.isParc ? pt[r.inst] : pt[1];
+    } else {
+      const comp = getComp();
+      compLabel2 = 'Concorrente';
+      compSubtitle2 = `Vero vs Concorrente (MDR + antecip. informados) · Visa/Mastercard`;
+      getCComp = r => {
+        let cBase = r.isDebito ? comp.debito : r.isParc ? (r.inst <= 6 ? comp.p2a6 : comp.p7a12) : comp.credito;
+        if (cBase == null) return null;
+        const fator = r.isDebito ? 0 : r.isParc ? (r.inst + 1) / 2 : 1;
+        return 1 - (1 - cBase) * (1 - comp.antecip * fator);
+      };
+    }
+  }
+
+  // ── Unified table rows ────────────────────────────────────────
+  const instTableRows = instRows.map(r => {
+    const fator   = r.isDebito ? 0 : r.isParc ? (r.inst + 1) / 2 : 1;
+    const advRate = (!r.isDebito && (isAut || state.inclAdv)) ? pd.antecip * fator : 0;
+    const aComp   = r.mdr != null ? 1 - (1 - r.mdr) * (1 - advRate) : null;
+    const liqBasis = aComp != null ? brl(pdfBasis * (1 - aComp)) : '—';
+
+    let compCols = '';
+    if (inclComp) {
+      const cComp = getCComp(r);
+      const diff  = (aComp != null && cComp != null) ? (cComp - aComp) * pdfBasis : null;
+      const diffTd = diff == null ? `<td class="g-eq">—</td>`
+        : Math.abs(diff) < 0.05 ? `<td class="g-eq">≈</td>`
+        : diff > 0 ? `<td class="g-pos">▼ ${brl(diff)}</td>`
+        : `<td class="g-neg">▲ ${brl(Math.abs(diff))}</td>`;
+      compCols = `<td class="muted">${cComp != null ? p(cComp) : '—'}</td>${diffTd}`;
+    }
+
+    const liqCol = showLiq ? `<td class="liq">${liqBasis}</td>` : '';
+    return `<tr>
+      <td>${r.label}</td>
+      <td class="comp">${aComp != null ? p(aComp) : '—'}</td>
+      ${compCols}${liqCol}
+    </tr>`;
+  }).join('');
+
+  // Unified table header
+  const liqBasisLabel = hasSaleValuePdf ? `Líquido (venda de ${brl(saleValueForPdf)})` : 'Líquido / R$1.000';
+  const ganhoLabel     = hasSaleValuePdf ? 'Ganho (R$)' : 'Ganho / R$1k';
+  const compHeaders2 = inclComp
+    ? `<th class="r">Taxa — ${compLabel2}</th><th class="c">${ganhoLabel}</th>`
+    : '';
+  const liqHeader = showLiq ? `<th class="r hlg">${liqBasisLabel}</th>` : '';
+  const veroColLabel = inclComp ? `Taxa Composta — ZAZ ${planKey}` : 'Taxa Composta';
+  const basisNote = hasSaleValuePdf
+    ? `Valores calculados sobre a venda simulada de ${brl(saleValueForPdf)}`
+    : `Líquido calculado sobre R$1.000 vendidos (referência — preencha "Valor da venda" no simulador para usar o valor real do cliente)`;
+  const instTableSub = inclComp ? `${compSubtitle2} · ${basisNote}` : `Taxa composta (MDR + antecipação) · Visa/Mastercard${showLiq ? ' · ' + basisNote : ''}`;
+
+  const instTableHTML = `
+    <div style="margin-top:14px">
+      <div class="sec-title">📊 ${hasSaleValuePdf ? `Simulação por Parcela — Venda de ${brl(saleValueForPdf)}` : 'Taxa Efetiva por Parcela'} — Visa / Mastercard</div>
+      <div class="sec-sub">${instTableSub}</div>
+      <table>
+        <thead><tr>
+          <th>Modalidade</th>
+          <th class="r hl">${veroColLabel}</th>
+          ${compHeaders2}${liqHeader}
+        </tr></thead>
+        <tbody>${instTableRows}</tbody>
+      </table>
+    </div>`;
+
+  // compHTML is now empty — comparison integrated into main table
+  let compHTML = '';
+
+  const baseRows = [
+    { label:'Débito',           vm: pd.vm?.deb,   elo: pd.elo?.deb,   vc: pd.vc?.deb   },
+    { label:'Crédito 1x',       vm: pd.vm?.cred,  elo: pd.elo?.cred,  vc: pd.vc?.cred  },
+    { label:'Parcelado 2–6x',   vm: pd.vm?.p2a6,  elo: pd.elo?.p2a6,  vc: pd.vc?.p2a12 },
+    { label:'Parcelado 7–18x',  vm: pd.vm?.p7a12, elo: pd.elo?.p7a12, vc: pd.vc?.p2a12 },
+    { label:'PIX',              vm: pd.pix,        elo: pd.pix,        vc: null          },
+    { label:'Voucher Banricard', vm: pd.ban,       elo: pd.ban,        vc: null          },
+  ];
+
+  const baseTableRows = baseRows.map(r => `
+    <tr>
+      <td>${r.label}</td>
+      <td class="rate">${r.vm  != null ? p(r.vm)  : '—'}</td>
+      <td class="rate">${r.elo != null ? p(r.elo) : '—'}</td>
+      <td class="rate">${r.vc  != null ? p(r.vc)  : '—'}</td>
+    </tr>`).join('');
+
+  // ── Seção de Projeção de Faturamento Mensal ────────────────────
+  let monthlySectionHTML = '';
+  if (monthlySimData) {
+    const ms = monthlySimData;
+    const brandLabelMS = state.brand === 'vm' ? 'Visa/Mastercard' : state.brand === 'elo' ? 'Elo/Cabal' : state.brand === 'vc' ? 'VerdeCard' : state.brand === 'ban' ? 'Banricard' : 'PIX';
+    const gainAnnualMS = ms.gainMonthly !== null ? ms.gainMonthly * 12 : null;
+
+    monthlySectionHTML = `
+      <div style="margin-top:16px">
+        <div class="sec-title">📈 Projeção de Faturamento Mensal</div>
+        <div class="sec-sub">Faturamento estimado: ${brl(ms.fat)}/mês · ${brandLabelMS} · Mix: ${ms.pctDeb}% débito · ${ms.pctCred}% crédito 1x · ${ms.pctParc}% parcelado (${ms.avgInst}x médio)</div>
+        <div class="ms-pdf-grid">
+          <div class="ms-pdf-box vero">
+            <div class="ms-pdf-label">Líquido Mensal — ZAZ ${planKey}</div>
+            <div class="ms-pdf-value">${brl(ms.veroLiq)}</div>
+          </div>
+          ${ms.compLiq !== null ? `
+          <div class="ms-pdf-box comp">
+            <div class="ms-pdf-label">Líquido Mensal — ${ms.compLabel}</div>
+            <div class="ms-pdf-value">${brl(ms.compLiq)}</div>
+          </div>` : `
+          <div class="ms-pdf-box comp">
+            <div class="ms-pdf-label">Comparativo</div>
+            <div style="font-size:10px;color:#8A8A9A;padding-top:4px">Sem dados de comparação preenchidos</div>
+          </div>`}
+        </div>
+        ${ms.gainMonthly !== null ? `
+        <div class="ms-pdf-gain ${ms.gainMonthly < 0 ? 'negative' : ''}">
+          ${ms.gainMonthly >= 0
+            ? `✅ ZAZ ${planKey} rende +${brl(ms.gainMonthly)} a mais por mês`
+            : `⚠️ ${ms.compLabel} rende +${brl(Math.abs(ms.gainMonthly))} a mais por mês`}
+        </div>
+        <div class="ms-pdf-annual">Projeção em 12 meses: ${ms.gainMonthly >= 0 ? '+' : '-'}${brl(Math.abs(gainAnnualMS))}</div>` : ''}
+      </div>`;
+  }
+
+  const LOGO_URL   = 'https://www.sejavero.com.br/bom/multimidia/bomd99im_vero_logo-positivo.svg';
+
+  const html = `<!DOCTYPE html>
+<html lang="pt-BR"><head>
+<meta charset="UTF-8"/>
+<title>Proposta Vero — ${estab}</title>
+<style>
+@page { size:A4 portrait; margin:0; }
+*{ box-sizing:border-box; margin:0; padding:0; }
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;
+  font-size:13px; color:#1C1C1E; background:#fff; line-height:1.5;
+  -webkit-print-color-adjust:exact; print-color-adjust:exact;
+}
+
+/* ── HEADER ──────────────────────────────────── */
+.hd{
+  background:#0A1972;
+  padding:0 28px;
+  display:flex; align-items:stretch; justify-content:space-between;
+  min-height:72px;
+}
+.hd-left{
+  display:flex; align-items:center; gap:0;
+  border-right:1px solid rgba(255,255,255,0.15);
+  padding-right:24px; margin-right:24px;
+}
+.hd-logo{ height:30px; display:block; }
+.hd-sep{ width:1px; background:rgba(255,255,255,0.15); margin:0 20px; align-self:stretch; }
+.hd-zaz{
+  display:flex; flex-direction:column; justify-content:center;
+  color:rgba(255,255,255,0.75); font-size:10px; font-weight:600; letter-spacing:.3px;
+}
+.hd-zaz strong{ color:#fff; font-size:13px; font-weight:800; letter-spacing:-.2px; }
+.hd-right{
+  display:flex; flex-direction:column; justify-content:center;
+  align-items:flex-end; color:#fff;
+}
+.hd-doc{ font-size:16px; font-weight:800; letter-spacing:-.3px; }
+.hd-date{ font-size:10px; color:rgba(255,255,255,.65); margin-top:3px; }
+.hd-badge{
+  margin-top:7px; display:inline-flex; align-items:center; gap:5px;
+  background:#00C2DC; color:#0A1972;
+  padding:3px 11px; border-radius:20px; font-size:9.5px; font-weight:800; letter-spacing:.3px;
+}
+
+/* ── CYAN STRIPE ──────────────────────────────── */
+.stripe{ height:4px; background:linear-gradient(90deg,#00C2DC,#0A1972); }
+
+/* ── ESTAB BAR ─────────────────────────────────── */
+.estab-bar{
+  background:#F4F6FB; border-bottom:1px solid #DDE2EF;
+  padding:12px 28px; display:flex; align-items:center; gap:32px; flex-wrap:wrap;
+}
+.eb-main{ flex:1; min-width:200px; }
+.eb-label{ font-size:8.5px; font-weight:800; text-transform:uppercase; letter-spacing:.7px; color:#8A8A9A; }
+.eb-name{ font-size:18px; font-weight:800; color:#0A1972; margin-top:1px; letter-spacing:-.3px; }
+.eb-promoter{ font-size:10.5px; color:#6C6C70; margin-top:4px; }
+.eb-promoter strong{ color:#1C1C1E; }
+.eb-meta{ display:flex; gap:20px; flex-wrap:wrap; }
+.em-item{ display:flex; flex-direction:column; gap:1px; }
+.em-label{ font-size:8px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:#8A8A9A; }
+.em-val{ font-size:12px; font-weight:700; color:#1C1C1E; }
+
+/* ── PLAN BANNER ───────────────────────────────── */
+.plan-banner{
+  margin:16px 28px 0;
+  background:linear-gradient(135deg,#0A1972 0%,#1535A8 60%,#1a45c8 100%);
+  border-radius:10px; padding:14px 20px;
+  display:flex; align-items:center; justify-content:space-between; gap:12px; color:#fff;
+}
+.pb-left{ display:flex; align-items:center; gap:14px; }
+.pb-dot{
+  width:40px; height:40px; border-radius:10px;
+  background:rgba(255,255,255,0.13); border:1.5px solid rgba(255,255,255,0.25);
+  display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0;
+}
+.pb-plan{ font-size:17px; font-weight:800; letter-spacing:-.3px; }
+.pb-sub{ font-size:9.5px; color:rgba(255,255,255,.72); margin-top:2px; }
+.pb-right{ display:flex; gap:7px; flex-wrap:wrap; align-items:center; }
+.pb-chip{ padding:4px 11px; border-radius:20px; font-size:9px; font-weight:800; letter-spacing:.3px; }
+.ch-aut{ background:#00C2DC; color:#0A1972; }
+.ch-opc{ background:rgba(255,255,255,.15); color:#fff; border:1px solid rgba(255,255,255,.3); }
+.ch-fat{ background:rgba(255,255,255,.1); color:rgba(255,255,255,.85); }
+
+/* ── BRANDS ────────────────────────────────────── */
+.brands{ margin:10px 28px 0; display:flex; gap:6px; flex-wrap:wrap; }
+.br-pill{ padding:4px 11px; border-radius:20px; font-size:9.5px; font-weight:800; border:1.5px solid; }
+.br-vm { background:#EEF2FF; color:#0A1972;  border-color:#0A1972; }
+.br-elo{ background:#FFF8E1; color:#7A5C00; border-color:#D4A800; }
+.br-vc { background:#E8F5E9; color:#1a6b30; border-color:#4CAF50; }
+.br-ban{ background:#FDE8E8; color:#8B1A1A; border-color:#D44; }
+.br-pix{ background:#E0F7FA; color:#005F6B; border-color:#00BCD4; }
+
+/* ── CONTENT WRAPPER ───────────────────────────── */
+.content{ padding:0 28px; }
+
+/* ── TWO COLS (base taxa + antecip) ─────────────── */
+.two-cols{ display:grid; grid-template-columns:1fr 220px; gap:14px; margin-top:14px; }
+
+/* ── SECTION ───────────────────────────────────── */
+.sec-title{
+  font-size:9px; font-weight:800; text-transform:uppercase; letter-spacing:.8px;
+  color:#0A1972; border-bottom:2px solid #0A1972; padding-bottom:5px; margin-bottom:3px;
+}
+.sec-sub{ font-size:8.5px; color:#8A8A9A; margin-bottom:8px; }
+
+/* ── ANTECIP CARD ──────────────────────────────── */
+.antecip-card{
+  background:linear-gradient(160deg,rgba(0,194,220,.08),rgba(10,25,114,.04));
+  border:1.5px solid #00C2DC; border-radius:9px; padding:14px 16px;
+  display:flex; flex-direction:column; justify-content:center; gap:4px;
+}
+.ac-label{ font-size:8px; font-weight:800; text-transform:uppercase; letter-spacing:.6px; color:#009DB3; }
+.ac-rate{ font-size:26px; font-weight:800; color:#0A1972; letter-spacing:-1px; line-height:1.1; }
+.ac-unit{ font-size:10px; font-weight:600; color:#0A1972; }
+.ac-type{ font-size:9px; font-weight:700; color:#009DB3; margin-top:4px; }
+.ac-sub{ font-size:8.5px; color:#8A8A9A; line-height:1.5; margin-top:3px; }
+
+/* ── PROJEÇÃO MENSAL ──────────────────────────── */
+.ms-pdf-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:8px; }
+.ms-pdf-box{
+  border-radius:10px; padding:14px 16px;
+}
+.ms-pdf-box.vero{ background:linear-gradient(160deg,rgba(0,194,220,.1),rgba(10,25,114,.05)); border:1.5px solid #00C2DC; }
+.ms-pdf-box.comp{ background:#F4F6FB; border:1.5px solid #DDE2EF; }
+.ms-pdf-label{ font-size:8.5px; font-weight:800; text-transform:uppercase; letter-spacing:.6px; color:#8A8A9A; margin-bottom:4px; }
+.ms-pdf-value{ font-size:22px; font-weight:800; color:#0A1972; letter-spacing:-.5px; }
+.ms-pdf-box.comp .ms-pdf-value{ color:#6C6C70; }
+.ms-pdf-mix{ font-size:9px; color:#8A8A9A; margin-top:10px; line-height:1.6; }
+.ms-pdf-gain{
+  margin-top:10px; padding:11px 16px; border-radius:9px;
+  background:#F0FFF4; border:1px solid #28A745; color:#1a7a3a;
+  font-size:12px; font-weight:800; text-align:center;
+}
+.ms-pdf-gain.negative{ background:#FFF2F2; border-color:#FF3B30; color:#c0392b; }
+.ms-pdf-annual{ font-size:9px; color:#8A8A9A; text-align:center; margin-top:6px; }
+
+/* ── TABLES ─────────────────────────────────────── */
+table{ width:100%; border-collapse:collapse; }
+thead th{
+  background:#0A1972; color:#fff; padding:6px 10px;
+  text-align:left; font-size:9px; font-weight:800;
+  text-transform:uppercase; letter-spacing:.4px; white-space:nowrap;
+}
+thead th.r{ text-align:right; }
+thead th.c{ text-align:center; }
+thead th.hl{ background:#00C2DC; color:#0A1972; }
+thead th.hlg{ background:#1a6b30; color:#fff; }
+tbody tr{ border-bottom:1px solid #ECEEF4; }
+tbody tr:nth-child(even){ background:#F7F8FC; }
+tbody tr:last-child{ border-bottom:none; }
+tbody td{ padding:5.5px 10px; vertical-align:middle; font-size:12px; }
+td.r{ text-align:right; }
+td.c{ text-align:center; }
+td.rate{ font-weight:700; color:#0A1972; text-align:right; }
+td.comp{ font-weight:800; color:#0A1972; background:rgba(10,25,114,.04); text-align:right; }
+td.liq{ font-weight:700; color:#1a6b30; text-align:right; }
+td.muted{ color:#8A8A9A; text-align:right; }
+td.antecip{ color:#009DB3; text-align:right; }
+
+/* ── DIVIDER ─────────────────────────────────────── */
+.divider{ height:1px; background:#DDE2EF; margin:14px 28px; }
+.page-break{ page-break-before:always; }
+
+/* ── COMP HEADER ─────────────────────────────────── */
+.comp-banner{
+  background:#F4F6FB; border:1px solid #DDE2EF; border-radius:8px;
+  padding:10px 14px; display:flex; align-items:center; gap:10px; margin-bottom:8px;
+}
+.comp-banner .cb-icon{ font-size:18px; }
+.comp-banner .cb-title{ font-size:11px; font-weight:800; color:#0A1972; }
+.comp-banner .cb-sub{ font-size:8.5px; color:#8A8A9A; margin-top:1px; }
+td.g-pos{ color:#1a6b30; font-weight:700; text-align:center; }
+td.g-neg{ color:#B91C1C; font-weight:700; text-align:center; }
+td.g-eq { color:#8A8A9A; text-align:center; }
+
+/* ── FOOTER ──────────────────────────────────────── */
+.pdf-footer{
+  margin-top:18px; padding:12px 28px 20px;
+  border-top:1px solid #DDE2EF;
+  display:flex; justify-content:space-between; align-items:flex-end; gap:16px;
+}
+.ft-notes{ font-size:7.5px; color:#AAAAB8; line-height:1.8; max-width:420px; }
+.ft-brand{ text-align:right; }
+.ft-logo{ height:18px; opacity:.7; }
+.ft-sub{ font-size:8px; color:#AAAAB8; margin-top:3px; }
+
+@media print{
+  body{ -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  tr{ page-break-inside:avoid; }
+}
+</style></head><body>
+
+<!-- HEADER -->
+<div class="hd">
+  <div class="hd-left">
+    <img class="hd-logo" src="${LOGO_URL}" alt="Vero" onerror="this.replaceWith(Object.assign(document.createElement('span'),{textContent:'vero',style:'font-size:22px;font-weight:900;color:#fff;letter-spacing:-1px'}))" />
+    <div class="hd-sep"></div>
+    <div class="hd-zaz"><strong>ZAZ Vendas</strong>Proposta Comercial</div>
+  </div>
+  <div class="hd-right">
+    <div class="hd-doc">Proposta Comercial</div>
+    <div class="hd-date">${today}</div>
+    <div class="hd-badge">ZAZ Vendas</div>
+  </div>
+</div>
+<div class="stripe"></div>
+
+<!-- ESTAB BAR -->
+<div class="estab-bar">
+  <div class="eb-main">
+    <div class="eb-label">Estabelecimento</div>
+    <div class="eb-name">${estab}</div>
+    ${promoter ? `<div class="eb-promoter">Atendido por: <strong>${promoter}</strong></div>` : ''}
+  </div>
+  <div class="eb-meta">
+    <div class="em-item"><span class="em-label">Plano</span><span class="em-val">ZAZ ${planKey}</span></div>
+    <div class="em-item"><span class="em-label">Faturamento Mín.</span><span class="em-val">${PLANS[planKey].fat}</span></div>
+    <div class="em-item"><span class="em-label">Antecipação</span><span class="em-val">${isAut ? 'Automática' : 'Opcional'}</span></div>
+    <div class="em-item"><span class="em-label">Data</span><span class="em-val">${today}</span></div>
+  </div>
+</div>
+
+<!-- PLAN BANNER -->
+<div class="plan-banner">
+  <div class="pb-left">
+    <div class="pb-dot" style="font-size:22px;letter-spacing:-1px;font-weight:900;color:#00C2DC">v</div>
+    <div>
+      <div class="pb-plan">Plano ZAZ ${planKey}</div>
+      <div class="pb-sub">Maquininha Vero Banrisul · Taxas contratadas</div>
+    </div>
+  </div>
+  <div class="pb-right">
+    <span class="pb-chip ${isAut ? 'ch-aut' : 'ch-opc'}">${isAut ? '🔄 ANTECIP. AUTOMÁTICA' : '⚡ ANTECIP. OPCIONAL'}</span>
+    <span class="pb-chip ch-fat">Fat. mín. ${PLANS[planKey].fat}</span>
+  </div>
+</div>
+
+<!-- BANDEIRAS -->
+<div class="brands">
+  <span class="br-pill br-vm">Visa / Mastercard</span>
+  <span class="br-pill br-elo">Elo / Cabal</span>
+  <span class="br-pill br-vc">VerdeCard</span>
+  <span class="br-pill br-ban">Banricard</span>
+  <span class="br-pill br-pix">PIX</span>
+</div>
+
+<!-- TAXAS BASE + ANTECIP CARD (2 colunas) -->
+<div class="content">
+  <div class="two-cols">
+    <div>
+      <div class="sec-title">💳 Taxas Base (MDR) por Bandeira</div>
+      <div class="sec-sub">${isAut ? 'Taxas MDR — taxa efetiva com antecipação na tabela seguinte' : 'Taxas MDR sem antecipação — taxa total na tabela seguinte'}</div>
+      <table>
+        <thead><tr><th>Modalidade</th><th class="r">Visa/MC</th><th class="r">Elo/Cabal</th><th class="r">VerdeCard</th></tr></thead>
+        <tbody>${baseTableRows}</tbody>
+      </table>
+    </div>
+    <div class="antecip-card">
+      <div class="ac-label">Taxa de Antecipação</div>
+      <div><span class="ac-rate">${p(pd.antecip)}</span><span class="ac-unit"> ao mês</span></div>
+      <div class="ac-type">${isAut ? '🔄 Automática' : '⚡ Opcional'}</div>
+      <div class="ac-sub">${isAut
+        ? 'Aplicada automaticamente em todas as transações de crédito e parcelado. Já embutida na taxa composta.'
+        : 'Cobrada somente quando o estabelecimento solicitar antecipação dos recebíveis.'}</div>
+    </div>
+  </div>
+
+  ${instTableHTML}
+
+  ${monthlySectionHTML}
+
+  <!-- FOOTER -->
+  <div class="pdf-footer">
+    <div class="ft-notes">
+      * Taxa composta: MDR + (antecip. × fator), fator = (n+1)/2 para parcelado, 1× para crédito à vista, 0 para débito/PIX.<br>
+      * PIX: ${p(pd.pix)} &nbsp;·&nbsp; Voucher Banricard: ${p(pd.ban)} &nbsp;·&nbsp; VerdeCard Débito: ${pd.vc?.deb != null ? p(pd.vc.deb) : '—'}<br>
+      * Taxas válidas conforme contrato firmado com a Vero Banrisul. Sujeitas a alterações conforme condições vigentes.
+    </div>
+    <div class="ft-brand">
+      <img class="ft-logo" src="${LOGO_URL}" alt="Vero" onerror="this.replaceWith(Object.assign(document.createElement('b'),{textContent:'vero',style:'color:#0A1972;font-size:14px'}))" /><br>
+      <div class="ft-sub">Banrisul Pagamentos · Apresentado por ZAZ Vendas</div>
+    </div>
+  </div>
+</div>
+
+${includeAutoPrint ? `
+<script>
+  window.onload = () => {
+    const imgs = document.querySelectorAll('img');
+    let done = 0, total = imgs.length;
+    const tryPrint = () => { done++; if(done >= total) setTimeout(window.print, 250); };
+    if(total === 0){ setTimeout(window.print, 250); return; }
+    imgs.forEach(img => { if(img.complete) tryPrint(); else { img.onload = tryPrint; img.onerror = tryPrint; } });
+  };
+<\/script>` : ''}
+</body></html>`;
+
+  return html;
+}
+
+function generatePDF() {
+  const html = buildProposalHTML(true);
+  const win = window.open('', '_blank');
+  win.document.write(html);
+  win.document.close();
+}
+
+function openWhatsAppWithAttachReminder(estab, filename) {
+  const promoter = document.getElementById('promoter-name').value.trim();
+  let msg = `Olá! Segue a proposta de taxas *Vero* para *${estab}*. 📄\n\n`;
+  msg += `📎 Anexe aqui o arquivo *${filename}* que acabou de ser baixado no seu computador.`;
+  if (promoter) msg += `\n\n_Atendimento: ${promoter}_`;
+  window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+}
+
+// ===================== COMPARTILHAR PDF DA PROPOSTA (arquivo real) =====================
+function slugify(text) {
+  return (text || 'proposta')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-zA-Z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .toLowerCase() || 'proposta';
+}
+
+function setWhatsAppBtnState(loading) {
+  const btn = document.getElementById('whatsapp-pdf-btn');
+  if (!btn) return;
+  if (loading) {
+    btn.dataset.originalHtml = btn.innerHTML;
+    btn.innerHTML = '<span>⏳</span> Gerando PDF...';
+    btn.disabled = true;
+  } else {
+    if (btn.dataset.originalHtml) btn.innerHTML = btn.dataset.originalHtml;
+    btn.disabled = false;
+  }
+}
+
+async function shareProposalPDF() {
+  if (typeof window.jspdf === 'undefined' || typeof html2canvas === 'undefined') {
+    alert('Não foi possível carregar os componentes necessários para gerar o PDF (verifique sua conexão com a internet). Você ainda pode usar o botão "Exportar Proposta PDF" tradicional.');
+    return;
+  }
+
+  setWhatsAppBtnState(true);
+
+  // Renderiza a proposta num iframe escondido pra tirar um "print" fiel dela
+  const html = buildProposalHTML(false);
+  const iframe = document.createElement('iframe');
+  iframe.style.position = 'fixed';
+  iframe.style.top = '-10000px';
+  iframe.style.left = '-10000px';
+  iframe.style.width = '794px';   // ~ largura de A4 a 96dpi
+  iframe.style.height = '1123px'; // ~ altura de A4 a 96dpi (ajustado depois pelo conteúdo real)
+  iframe.style.border = 'none';
+  document.body.appendChild(iframe);
+
+  try {
+    await new Promise((resolve, reject) => {
+      iframe.onload = resolve;
+      iframe.onerror = reject;
+      iframe.srcdoc = html;
+      setTimeout(resolve, 4000); // trava de segurança caso onload não dispare
+    });
+
+    const doc = iframe.contentDocument;
+    // Ajusta a altura do iframe para o conteúdo real, senão a captura fica cortada
+    const fullHeight = Math.max(doc.body.scrollHeight, doc.documentElement.scrollHeight);
+    iframe.style.height = fullHeight + 'px';
+    await new Promise(r => setTimeout(r, 200)); // dá um tempo pro reflow
+
+    const canvas = await html2canvas(doc.body, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: '#ffffff',
+      width: 794,
+      windowWidth: 794
+    });
+
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    const pageWidthMM  = 210;
+    const pageHeightMM = 297;
+    const imgHeightMM  = (canvas.height * pageWidthMM) / canvas.width;
+    const imgData = canvas.toDataURL('image/jpeg', 0.92);
+
+    let heightLeft = imgHeightMM;
+    let position = 0;
+    pdf.addImage(imgData, 'JPEG', 0, position, pageWidthMM, imgHeightMM);
+    heightLeft -= pageHeightMM;
+    while (heightLeft > 0) {
+      position = heightLeft - imgHeightMM;
+      pdf.addPage();
+      pdf.addImage(imgData, 'JPEG', 0, position, pageWidthMM, imgHeightMM);
+      heightLeft -= pageHeightMM;
+    }
+
+    const estab    = document.getElementById('estab-name').value.trim() || 'Cliente';
+    const filename = `Proposta-Vero-${slugify(estab)}.pdf`;
+    const blob     = pdf.output('blob');
+    const file     = new File([blob], filename, { type: 'application/pdf' });
+
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({
+        files: [file],
+        title: 'Proposta Vero × ZAZ Vendas',
+        text: `Segue a proposta de taxas Vero para ${estab}.`
+      });
+    } else {
+      // Desktop / navegador sem suporte: baixa o PDF e abre o WhatsApp Web com aviso
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+
+      alert(`O PDF "${filename}" foi baixado. O WhatsApp vai abrir com uma mensagem pronta — é só anexar esse arquivo na conversa (o navegador não permite anexar automaticamente por segurança).`);
+      openWhatsAppWithAttachReminder(estab, filename);
+    }
+  } catch (err) {
+    if (err && err.name === 'AbortError') {
+      // Usuário cancelou o compartilhamento — não é erro
+    } else {
+      console.error(err);
+      alert('Não foi possível gerar o PDF para compartilhamento. Tente novamente ou use o botão "Exportar Proposta PDF".');
+    }
+  } finally {
+    iframe.remove();
+    setWhatsAppBtnState(false);
+  }
+}
+
+// ===================== ENVIAR POR WHATSAPP =====================
+function sendWhatsApp() {
+  const saleValue = parseFloat(document.getElementById('saleValue').value);
+  if (isNaN(saleValue) || saleValue <= 0) {
+    alert('Preencha o valor da venda antes de enviar a simulação.');
+    return;
+  }
+
+  const { brand, method, inst, inclAdv } = state;
+  const g = calcVero(brand, method, inst, inclAdv);
+  if (!g) {
+    alert('Essa modalidade não está disponível para a bandeira selecionada.');
+    return;
+  }
+
+  const estab = document.getElementById('estab-name').value.trim() || 'Cliente';
+  const gL = saleValue * (1 - g.total);
+
+  const methodLabel =
+    method === 'debito'  ? 'Débito' :
+    method === 'credito' ? 'Crédito à Vista' :
+    `Crédito ${inst}x`;
+
+  const brandLabel =
+    brand === 'vm'  ? 'Visa/Mastercard' :
+    brand === 'elo' ? 'Elo/Cabal'       :
+    brand === 'vc'  ? 'VerdeCard'       :
+    brand === 'ban' ? 'Banricard'       : 'PIX';
+
+  let msg = `*Simulação de Taxas — Vero × ZAZ Vendas*\n\n`;
+  msg += `🏪 Estabelecimento: ${estab}\n`;
+  msg += `📋 Plano: ZAZ ${state.plan} (${state.antecipType === 'aut' ? 'Antecipação Automática' : 'Antecipação Opcional'})\n`;
+  msg += `💳 Venda: ${fmtBRL(saleValue)} — ${methodLabel} — ${brandLabel}\n\n`;
+  msg += `📊 Taxa total: ${fmtPct(g.total)}\n`;
+  msg += `✅ Você recebe: *${fmtBRL(gL)}*\n`;
+
+  // Comparação, se houver dados preenchidos
+  const isVeroComp  = state.compMode === 'vero';
+  const isParcTable = state.compMode === 'parc-table';
+  const comp = (!isVeroComp && !isParcTable) ? getComp() : null;
+  const c = isVeroComp   ? calcCompVero(brand, method, inst)
+          : isParcTable  ? calcCompParcTable(method, inst)
+          : (brand === 'vm' || brand === 'elo') ? calcComp(method, inst, comp) : null;
+
+  if (c) {
+    const cL   = saleValue * (1 - c.total);
+    const gain = gL - cL;
+    const compLabel = isVeroComp ? `ZAZ ${state.compPlan}` : 'Concorrente atual';
+    msg += `\n⚫ ${compLabel}: ${fmtPct(c.total)} → ${fmtBRL(cL)}\n`;
+    if (gain > 0.5) {
+      msg += `\n🎉 A Vero rende *+${fmtBRL(gain)}* a mais nesta venda!`;
+    } else if (gain < -0.5) {
+      msg += `\n⚠️ O concorrente rende +${fmtBRL(Math.abs(gain))} a mais nesta venda.`;
+    } else {
+      msg += `\nTaxas praticamente equivalentes.`;
+    }
+  }
+
+  msg += `\n\n_Simulação gerada em ${new Date().toLocaleDateString('pt-BR')}_`;
+
+  const url = `https://wa.me/?text=${encodeURIComponent(msg)}`;
+  window.open(url, '_blank');
+}
+
+// ===================== SIMULAÇÃO DE FATURAMENTO MENSAL =====================
+function renderMonthlySim() {
+  const resultEl = document.getElementById('ms-result');
+  const sumEl    = document.getElementById('ms-pct-sum');
+
+  const fat     = parseFloat(document.getElementById('ms-fat').value);
+  const pctDeb  = parseFloat(document.getElementById('ms-pct-deb').value)  || 0;
+  const pctCred = parseFloat(document.getElementById('ms-pct-cred').value) || 0;
+  const pctParc = parseFloat(document.getElementById('ms-pct-parc').value) || 0;
+  const avgInst = parseInt(document.getElementById('ms-avg-inst').value);
+
+  const sumPct = pctDeb + pctCred + pctParc;
+  const isOk   = Math.abs(sumPct - 100) < 0.5;
+
+  sumEl.className = 'ms-sum-indicator ' + (isOk ? 'ok' : 'warn');
+  sumEl.innerHTML = isOk
+    ? `<span>✅ Soma: ${sumPct.toFixed(0)}%</span><span>Mix completo</span>`
+    : `<span>⚠️ Soma: ${sumPct.toFixed(0)}%</span><span>Faltam ${(100 - sumPct).toFixed(0)}% para 100%</span>`;
+
+  if (!fat || fat <= 0 || sumPct === 0) {
+    resultEl.innerHTML = '<div class="empty-state" style="padding:16px 0"><div class="empty-icon">📈</div>Preencha o faturamento e o mix de vendas para projetar.</div>';
+    return;
+  }
+
+  const brand = state.brand;
+  const gDeb  = calcVero(brand, 'debito',  1,       state.inclAdv);
+  const gCred = calcVero(brand, 'credito', 1,       state.inclAdv);
+  const gParc = calcVero(brand, 'parc',    avgInst, state.inclAdv);
+
+  const isVeroComp  = state.compMode === 'vero';
+  const isParcTable = state.compMode === 'parc-table';
+  const comp = (!isVeroComp && !isParcTable) ? getComp() : null;
+
+  const cDeb  = isVeroComp ? calcCompVero(brand, 'debito', 1)         : isParcTable ? calcCompParcTable('debito', 1)         : calcComp('debito', 1, comp);
+  const cCred = isVeroComp ? calcCompVero(brand, 'credito', 1)        : isParcTable ? calcCompParcTable('credito', 1)        : calcComp('credito', 1, comp);
+  const cParc = isVeroComp ? calcCompVero(brand, 'parc', avgInst)     : isParcTable ? calcCompParcTable('parc', avgInst)     : calcComp('parc', avgInst, comp);
+
+  const volDeb  = fat * (pctDeb  / 100);
+  const volCred = fat * (pctCred / 100);
+  const volParc = fat * (pctParc / 100);
+
+  const veroLiq =
+    (gDeb  ? volDeb  * (1 - gDeb.total)  : volDeb) +
+    (gCred ? volCred * (1 - gCred.total) : volCred) +
+    (gParc ? volParc * (1 - gParc.total) : volParc);
+
+  let compLiq = null;
+  if (cDeb || cCred || cParc) {
+    compLiq =
+      (cDeb  ? volDeb  * (1 - cDeb.total)  : volDeb) +
+      (cCred ? volCred * (1 - cCred.total) : volCred) +
+      (cParc ? volParc * (1 - cParc.total) : volParc);
+  }
+
+  const gainMonthly = compLiq !== null ? veroLiq - compLiq : null;
+  const gainAnnual  = gainMonthly !== null ? gainMonthly * 12 : null;
+
+  const compLabel = isVeroComp ? `ZAZ ${state.compPlan}` : 'Concorrente';
+  const winnerName = isVeroComp ? `ZAZ ${state.plan}` : 'Vero';
+  const loserName  = isVeroComp ? `ZAZ ${state.compPlan}` : 'Concorrente';
+
+  resultEl.innerHTML = `
+    <div class="two-col" style="margin-bottom:0">
+      <div class="liquido-box vero-box">
+        <div class="lb-label">Líquido mensal (Vero)</div>
+        <div class="lb-value">${fmtBRL(veroLiq)}</div>
+      </div>
+      ${compLiq !== null ? `
+      <div class="liquido-box comp-box">
+        <div class="lb-label">Líquido mensal (${compLabel})</div>
+        <div class="lb-value" style="color:var(--subtext)">${fmtBRL(compLiq)}</div>
+      </div>` : ''}
+    </div>
+    ${gainMonthly !== null ? `
+      <div class="gain-banner ${gainMonthly > 0.5 ? 'positive' : gainMonthly < -0.5 ? 'negative' : 'neutral'}" style="margin-top:12px">
+        <span class="gb-icon">${gainMonthly > 0.5 ? '✅' : gainMonthly < -0.5 ? '❌' : '➖'}</span>
+        <span>
+          ${gainMonthly > 0.5
+            ? `${winnerName} rende <strong>+${fmtBRL(gainMonthly)}/mês</strong> a mais`
+            : gainMonthly < -0.5
+            ? `${loserName} rende <strong>+${fmtBRL(Math.abs(gainMonthly))}/mês</strong> a mais`
+            : 'Resultado mensal praticamente equivalente'}
+        </span>
+      </div>
+      ${Math.abs(gainAnnual) > 1 ? `
+      <div style="margin-top:10px;text-align:center;font-size:12px;color:var(--subtext)">
+        Projeção em 12 meses: <strong style="color:var(--text)">${gainMonthly > 0 ? '+' : ''}${fmtBRL(gainAnnual)}</strong>
+      </div>` : ''}
+    ` : `<p style="font-size:12px;color:var(--subtext);margin-top:10px">Preencha as taxas do concorrente (ou selecione outro plano Vero) para comparar.</p>`}
+  `;
+}
+
+// Auto-ajuste: ao editar Débito ou Crédito 1x, o Parcelado completa até 100% sozinho
+function autoBalanceParc() {
+  const deb  = parseFloat(document.getElementById('ms-pct-deb').value)  || 0;
+  const cred = parseFloat(document.getElementById('ms-pct-cred').value) || 0;
+  const resto = Math.max(0, Math.min(100, 100 - deb - cred));
+  document.getElementById('ms-pct-parc').value = resto;
+}
+
+['ms-pct-deb', 'ms-pct-cred'].forEach(id => {
+  document.getElementById(id).addEventListener('input', () => {
+    autoBalanceParc();
+    renderMonthlySim();
+  });
+});
+
+['ms-fat','ms-pct-parc','ms-avg-inst'].forEach(id => {
+  document.getElementById(id).addEventListener('input', renderMonthlySim);
+});
+
+// ===================== CONSULTA DE CNPJ (BrasilAPI) =====================
+function maskCNPJInput(value) {
+  const d = value.replace(/\D/g, '').slice(0, 14);
+  let out = d;
+  if (d.length > 2)  out = d.slice(0,2) + '.' + d.slice(2);
+  if (d.length > 5)  out = out.slice(0,6) + '.' + out.slice(6);
+  if (d.length > 8)  out = out.slice(0,10) + '/' + out.slice(10);
+  if (d.length > 12) out = out.slice(0,15) + '-' + out.slice(15);
+  return out;
+}
+
+document.getElementById('cnpj-input').addEventListener('input', e => {
+  e.target.value = maskCNPJInput(e.target.value);
+});
+
+document.getElementById('cnpj-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') buscarCNPJ();
+});
+
+function isValidCNPJ(cnpjDigits) {
+  if (cnpjDigits.length !== 14 || /^(\d)\1{13}$/.test(cnpjDigits)) return false;
+  const calcDV = (base) => {
+    const weights = base.length === 12
+      ? [5,4,3,2,9,8,7,6,5,4,3,2]
+      : [6,5,4,3,2,9,8,7,6,5,4,3,2];
+    let sum = 0;
+    for (let i = 0; i < base.length; i++) sum += parseInt(base[i]) * weights[i];
+    const rest = sum % 11;
+    return rest < 2 ? 0 : 11 - rest;
+  };
+  const base12 = cnpjDigits.slice(0, 12);
+  const dv1 = calcDV(base12);
+  const dv2 = calcDV(base12 + dv1);
+  return cnpjDigits === base12 + String(dv1) + String(dv2);
+}
+
+function toggleCollapse(cardId) {
+  document.getElementById(cardId).classList.toggle('collapsed');
+}
+
+function openCnpjModal() {
+  document.getElementById('cnpj-modal-overlay').classList.add('open');
+  document.getElementById('cnpj-input').focus();
+}
+
+function closeCnpjModal() {
+  document.getElementById('cnpj-modal-overlay').classList.remove('open');
+}
+
+function openIntroModal() {
+  document.getElementById('intro-modal-overlay').classList.add('open');
+}
+
+function closeIntroModal() {
+  document.getElementById('intro-modal-overlay').classList.remove('open');
+  try { localStorage.setItem('vero_sim_intro_seen', '1'); } catch (e) { /* localStorage indisponível, sem problema */ }
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { closeCnpjModal(); closeIntroModal(); }
+});
+
+// Mostra o guia de boas-vindas automaticamente na primeira visita
+(function autoShowIntro() {
+  try {
+    if (!localStorage.getItem('vero_sim_intro_seen')) {
+      // Pequeno atraso: dá tempo do navegador mobile estabilizar a barra de endereço
+      // antes de abrir o modal em tela cheia, evitando corte visual.
+      setTimeout(openIntroModal, 300);
+    }
+  } catch (e) {
+    // localStorage bloqueado (ex: aba anônima restrita) — não mostra automaticamente, mas o botão "Como Usar" continua disponível
+  }
+})();
+
+function fmtCEP(cep) {
+  if (!cep) return null;
+  const d = cep.replace(/\D/g, '');
+  return d.length === 8 ? `${d.slice(0,5)}-${d.slice(5)}` : cep;
+}
+
+function fmtDataBR(iso) {
+  if (!iso) return null;
+  const m = iso.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  return m ? `${m[3]}/${m[2]}/${m[1]}` : iso;
+}
+
+function fmtCapitalSocial(v) {
+  if (v === null || v === undefined) return null;
+  const n = Number(v);
+  if (isNaN(n)) return null;
+  return 'R$ ' + n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+async function buscarCNPJ() {
+  const input = document.getElementById('cnpj-input');
+  const btn   = document.getElementById('cnpj-search-btn');
+  const area  = document.getElementById('cnpj-result-area');
+  const digits = input.value.replace(/\D/g, '');
+
+  if (digits.length !== 14) {
+    area.innerHTML = `<div class="cnpj-error"><span>⚠️</span><span>Digite um CNPJ completo (14 dígitos).</span></div>`;
+    return;
+  }
+  if (!isValidCNPJ(digits)) {
+    area.innerHTML = `<div class="cnpj-error"><span>⚠️</span><span>Esse CNPJ não parece válido — confira os números digitados.</span></div>`;
+    return;
+  }
+
+  btn.disabled = true;
+  area.innerHTML = `
+    <div class="cnpj-loading">
+      <div class="cnpj-spinner"></div>
+      <div>Consultando dados públicos...</div>
+    </div>`;
+
+  try {
+    const resp = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${digits}`);
+    if (resp.status === 404) {
+      area.innerHTML = `<div class="cnpj-error"><span>🔍</span><span>CNPJ não encontrado na base da Receita Federal.</span></div>`;
+      return;
+    }
+    if (!resp.ok) {
+      area.innerHTML = `<div class="cnpj-error"><span>⚠️</span><span>Não foi possível consultar agora (erro ${resp.status}). Tente novamente em instantes.</span></div>`;
+      return;
+    }
+    const data = await resp.json();
+    renderCnpjData(data);
+  } catch (err) {
+    area.innerHTML = `<div class="cnpj-error"><span>⚠️</span><span>Falha de conexão ao consultar o CNPJ. Verifique sua internet e tente novamente.</span></div>`;
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function renderCnpjData(data) {
+  const area = document.getElementById('cnpj-result-area');
+
+  const situacao = (data.descricao_situacao_cadastral || '').toUpperCase();
+  const badgeClass =
+    situacao.includes('ATIVA')    ? 'ativa'    :
+    situacao.includes('BAIXADA')  ? 'baixada'  :
+    situacao.includes('SUSPENSA') ? 'suspensa' :
+    situacao.includes('INAPTA')   ? 'inapta'   : 'outro';
+
+  const enderecoParts = [
+    data.logradouro,
+    data.numero,
+    data.complemento
+  ].filter(Boolean).join(', ');
+  const bairroMuniUf = [data.bairro, data.municipio && data.uf ? `${data.municipio}/${data.uf}` : data.municipio].filter(Boolean).join(' — ');
+  const cepFmt = fmtCEP(data.cep);
+
+  const porteTxt = typeof data.porte === 'object' && data.porte ? (data.porte.descricao || data.porte.text || '') : (data.porte || null);
+
+  const socios = Array.isArray(data.qsa) ? data.qsa : [];
+  const sociosHtml = socios.length
+    ? `<div class="cnpj-socios-wrap">
+         <div class="cnpj-socios-title">Quadro de Sócios (${socios.length})</div>
+         ${socios.map(s => `<span class="cnpj-socio-chip">${s.nome_socio || s.nome || '—'} <small>· ${s.qualificacao_socio || s.qual || ''}</small></span>`).join('')}
+       </div>`
+    : '';
+
+  const cnaesSecArr = Array.isArray(data.cnaes_secundarios) ? data.cnaes_secundarios : [];
+  const cnaeSecTxt = cnaesSecArr.length
+    ? cnaesSecArr.slice(0, 3).map(c => c.descricao || c.text).filter(Boolean).join(' · ') + (cnaesSecArr.length > 3 ? ` (+${cnaesSecArr.length - 3})` : '')
+    : null;
+
+  const infoItem = (label, value, full) => value
+    ? `<div class="cnpj-info-item${full ? ' full' : ''}">
+         <div class="cnpj-info-label">${label}</div>
+         <div class="cnpj-info-value">${value}</div>
+       </div>` : '';
+
+  area.innerHTML = `
+    <div class="cnpj-card">
+      <div class="cnpj-card-head">
+        <div>
+          <div class="cnpj-razao">${data.razao_social || '—'}</div>
+          ${data.nome_fantasia ? `<div class="cnpj-fantasia">${data.nome_fantasia}</div>` : ''}
+          <div class="cnpj-cnpj-num">${maskCNPJInput(data.cnpj || '')}</div>
+        </div>
+        <span class="cnpj-badge ${badgeClass}">${data.descricao_situacao_cadastral || 'N/D'}</span>
+      </div>
+
+      <div class="cnpj-info-grid">
+        ${infoItem('CNAE Principal', data.cnae_fiscal_descricao, true)}
+        ${infoItem('CNAEs Secundários', cnaeSecTxt, true)}
+        ${infoItem('Endereço', enderecoParts, true)}
+        ${infoItem('Bairro / Cidade', bairroMuniUf)}
+        ${infoItem('CEP', cepFmt)}
+        ${infoItem('Natureza Jurídica', data.natureza_juridica)}
+        ${infoItem('Porte', porteTxt)}
+        ${infoItem('Data de Abertura', fmtDataBR(data.data_inicio_atividade))}
+        ${infoItem('Capital Social', fmtCapitalSocial(data.capital_social))}
+        ${infoItem('Telefone', data.ddd_telefone_1)}
+        ${infoItem('E-mail', data.email)}
+      </div>
+
+      ${sociosHtml}
+
+      <div class="cnpj-actions">
+        <button class="cnpj-btn-use" onclick="useCnpjData(${JSON.stringify(data.razao_social || '').replace(/"/g,'&quot;')}, ${JSON.stringify(data.nome_fantasia || '').replace(/"/g,'&quot;')})">
+          ✅ Usar no formulário
+        </button>
+        <button class="cnpj-btn-source" onclick="window.open('https://solucoes.receita.fazenda.gov.br/Servicos/cnpjreva/cnpjreva_solicitacao.asp','_blank')">
+          📄 Ver na Receita
+        </button>
+        <button class="cnpj-btn-ccmei" onclick="window.open('https://www.gov.br/empresas-e-negocios/pt-br/empreendedor/servicos-para-mei/emissao-de-comprovante-ccmei','_blank')">
+          🧾 Emitir CCMEI
+        </button>
+      </div>
+      <div class="cnpj-ccmei-note">
+        O CCMEI é específico para clientes <strong>MEI</strong>. O botão abre a página oficial da Receita — lá será
+        necessário informar CPF e data de nascimento do titular, além de confirmar a verificação "não sou um robô".
+      </div>
+    </div>
+    <div class="cnpj-source-note">
+      Dados via BrasilAPI (fonte pública, atualizados periodicamente pela Receita Federal).
+      Para fins legais/contratuais, confirme sempre no site oficial da Receita.
+    </div>
+  `;
+}
+
+function useCnpjData(razaoSocial, nomeFantasia) {
+  const nome = nomeFantasia && nomeFantasia.trim() ? nomeFantasia : razaoSocial;
+  const estabInput = document.getElementById('estab-name');
+  estabInput.value = nome || '';
+  closeCnpjModal();
+  estabInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  estabInput.focus();
+}
+
+// Init
+render();
+</script>
+</body>
+</html>
