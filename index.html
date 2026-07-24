@@ -2,17 +2,34 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <meta name="apple-mobile-web-app-title" content="Simulador Vero" />
-  <meta name="theme-color" content="#0A1972" />
-  <link rel="manifest" href="manifest.json" />
-  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png" />
-  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <!-- Viewport corrigido: fim da tela cortada + pinch-to-zoom até 5x -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
   <title>Simulador de Taxas — Vero × ZAZ Vendas</title>
+
+  <!-- PWA (app instalavel) -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#5B21B6">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="ZAZ Vendas">
   <style>
+    html, body {
+      width: 100%;
+      max-width: 100%;
+      margin: 0;
+      padding: 0;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    img, canvas {
+      max-width: 100%;
+      height: auto;
+    }
+
     :root {
       --primary:       #0A1972;
       --primary-dark:  #060F50;
@@ -34,7 +51,7 @@
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
-    html { overflow-x: hidden; }
+    html { overflow-x: clip; }
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -44,14 +61,14 @@
       line-height: 1.5;
       min-height: 100vh;
       min-height: 100dvh;
-      overflow-x: hidden;
+      overflow-x: clip;
       -webkit-tap-highlight-color: transparent;
     }
 
     /* HEADER */
     header {
       background: var(--primary);
-      padding: calc(14px + env(safe-area-inset-top, 0px)) calc(20px + env(safe-area-inset-right, 0px)) 14px calc(20px + env(safe-area-inset-left, 0px));
+      padding: calc(14px + env(safe-area-inset-top)) calc(20px + env(safe-area-inset-right)) 14px calc(20px + env(safe-area-inset-left));
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -61,7 +78,7 @@
       box-shadow: 0 2px 12px rgba(0,0,0,0.25);
     }
 
-    .h-left { display: flex; align-items: center; gap: 12px; }
+    .h-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
 
     .h-logo {
       display: flex;
@@ -130,22 +147,27 @@
 
     /* LAYOUT */
     main {
+      width: 100%;
       max-width: 1040px;
       margin: 0 auto;
-      padding: 20px calc(16px + env(safe-area-inset-right, 0px)) 60px calc(16px + env(safe-area-inset-left, 0px));
+      padding: 20px calc(16px + env(safe-area-inset-right)) 60px calc(16px + env(safe-area-inset-left));
     }
 
     .layout {
       display: grid;
-      grid-template-columns: 390px 1fr;
+      grid-template-columns: minmax(0, 390px) minmax(0, 1fr);
       gap: 16px;
       align-items: start;
     }
 
     @media (max-width: 760px) { .layout { grid-template-columns: 1fr; } }
 
-    .col-inputs { display: flex; flex-direction: column; gap: 14px; }
-    .col-result  { display: flex; flex-direction: column; gap: 14px; }
+    .layout > *,
+    .col-inputs > *,
+    .col-result > * { min-width: 0; }
+
+    .col-inputs { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+    .col-result  { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
 
     /* CARDS */
     .card {
@@ -377,7 +399,7 @@
       gap: 10px;
     }
 
-    .plan-head-left { display: flex; align-items: center; gap: 12px; }
+    .plan-head-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
 
     .plan-icon {
       width: 52px; height: 52px;
@@ -395,7 +417,7 @@
       object-position: center center;
     }
 
-    .plan-title { font-size: 15px; font-weight: 800; color: #fff; line-height: 1.3; }
+    .plan-title { min-width: 0; font-size: 15px; font-weight: 800; color: #fff; line-height: 1.3; overflow-wrap: anywhere; }
     .plan-title span { display: block; font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.8); margin-top: 2px; }
 
     .plan-type-badge {
@@ -441,9 +463,16 @@
     .bc-elo  { background: #FFF3CD; color: #856404; }
     .bc-vc   { background: #D4EDDA; color: #155724; }
     .bc-ban  { background: #F8D7DA; color: #721c24; }
+    .bc-bcp  { background: #F3E8FF; color: #5b21a6; }
     .bc-pix  { background: #D1ECF1; color: #0c5460; }
 
-    .plan-table-wrap { overflow-x: auto; }
+    .plan-table-wrap {
+      width: 100%;
+      max-width: 100%;
+      overflow-x: auto;
+      overscroll-behavior-inline: contain;
+      -webkit-overflow-scrolling: touch;
+    }
 
     .plan-table {
       width: 100%;
@@ -641,7 +670,11 @@
 
     /* TABLE */
     .table-wrap {
+      width: 100%;
+      max-width: 100%;
       overflow-x: auto;
+      overscroll-behavior-inline: contain;
+      -webkit-overflow-scrolling: touch;
       border-radius: var(--radius);
       box-shadow: var(--shadow);
       background: var(--card);
@@ -771,7 +804,7 @@
 
     .ptg-row {
       display: grid;
-      grid-template-columns: 1fr 130px;
+      grid-template-columns: minmax(0, 1fr) minmax(110px, 130px);
       align-items: center;
       gap: 10px;
       padding: 7px 12px;
@@ -905,7 +938,7 @@
     /* INSTALLMENT LIST (1x-18x) */
     .il-row {
       display: grid;
-      grid-template-columns: 44px 1fr 78px;
+      grid-template-columns: 44px minmax(0, 1fr) 78px;
       align-items: center;
       gap: 10px;
       padding: 7px 2px;
@@ -990,7 +1023,7 @@
 
     footer {
       text-align: center;
-      padding: 16px 16px calc(16px + env(safe-area-inset-bottom, 0px));
+      padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
       font-size: 11px;
       color: var(--subtext);
     }
@@ -1311,6 +1344,138 @@
       transition: background 0.15s;
     }
     .intro-start-btn:hover { background: var(--primary-dark); }
+
+    /* RESPONSIVIDADE: o conteúdo se adapta sem depender do zoom do navegador */
+    @media (max-width: 760px) {
+      main {
+        padding-top: 14px;
+        padding-right: calc(12px + env(safe-area-inset-right));
+        padding-left: calc(12px + env(safe-area-inset-left));
+      }
+
+      .card,
+      .export-card {
+        padding: 16px;
+      }
+
+      .plan-head-row,
+      .cnpj-card-head {
+        flex-wrap: wrap;
+      }
+
+      .detail-row .dv,
+      .cnpj-info-value {
+        white-space: normal;
+        overflow-wrap: anywhere;
+      }
+    }
+
+    @media (max-width: 480px) {
+      header {
+        padding-top: calc(10px + env(safe-area-inset-top));
+        padding-right: calc(12px + env(safe-area-inset-right));
+        padding-bottom: 10px;
+        padding-left: calc(12px + env(safe-area-inset-left));
+      }
+
+      .h-left,
+      .h-right {
+        min-width: 0;
+      }
+
+      .h-right {
+        gap: 6px;
+      }
+
+      .h-cnpj-btn {
+        min-width: 42px;
+        min-height: 38px;
+        padding: 7px 11px;
+        justify-content: center;
+      }
+
+      .h-badge {
+        padding-inline: 10px;
+        font-size: 10px;
+      }
+
+      .plan-head,
+      .result-head {
+        padding: 14px 16px;
+      }
+
+      .plan-head-row {
+        align-items: center;
+      }
+
+      .plan-type-badge {
+        margin-left: 64px;
+      }
+
+      .modal-overlay {
+        padding: max(10px, env(safe-area-inset-top)) max(10px, env(safe-area-inset-right)) max(10px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left));
+        align-items: flex-start;
+      }
+
+      .modal-box {
+        margin: auto 0;
+      }
+
+      .modal-head,
+      .modal-body {
+        padding-right: 16px;
+        padding-left: 16px;
+      }
+
+      .cnpj-search-row {
+        flex-direction: column;
+      }
+
+      .cnpj-search-btn {
+        min-height: 44px;
+      }
+    }
+
+    @media (max-width: 380px) {
+      main {
+        padding-right: calc(8px + env(safe-area-inset-right));
+        padding-left: calc(8px + env(safe-area-inset-left));
+      }
+
+      .card,
+      .export-card {
+        padding: 14px;
+      }
+
+      .toggle-group {
+        gap: 5px;
+      }
+
+      .tgl {
+        min-width: min(72px, 100%);
+        padding-inline: 7px;
+        font-size: 12px;
+      }
+
+      .ptg-row {
+        grid-template-columns: minmax(0, 1fr) minmax(96px, 42%);
+        gap: 7px;
+        padding-inline: 9px;
+      }
+
+      .mob-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .il-row {
+        grid-template-columns: 38px minmax(0, 1fr) 68px;
+        gap: 6px;
+      }
+
+      .plan-type-badge {
+        margin-left: 0;
+      }
+    }
   </style>
 </head>
 <body>
@@ -1418,6 +1583,7 @@
             <button class="tgl"        data-val="elo">Elo/Cabal</button>
             <button class="tgl"        data-val="vc">VerdeCard</button>
             <button class="tgl"        data-val="ban">Banricard</button>
+            <button class="tgl"        data-val="bcp" id="brand-bcp-btn">Banricompras</button>
             <button class="tgl"        data-val="pix">PIX</button>
           </div>
         </div>
@@ -1445,12 +1611,12 @@
             <option value="10">10x</option>
             <option value="11">11x</option>
             <option value="12">12x</option>
-            <option value="13">13x</option>
-            <option value="14">14x</option>
-            <option value="15">15x</option>
-            <option value="16">16x</option>
-            <option value="17">17x</option>
-            <option value="18">18x</option>
+            <option value="13" class="opt-over12">13x</option>
+            <option value="14" class="opt-over12">14x</option>
+            <option value="15" class="opt-over12">15x</option>
+            <option value="16" class="opt-over12">16x</option>
+            <option value="17" class="opt-over12">17x</option>
+            <option value="18" class="opt-over12">18x</option>
           </select>
         </div>
 
@@ -1795,6 +1961,7 @@
             <span class="brand-chip bc-elo">Elo/Cabal</span>
             <span class="brand-chip bc-vc">VerdeCard</span>
             <span class="brand-chip bc-ban">Banricard</span>
+            <span class="brand-chip bc-bcp">Banricompras</span>
             <span class="brand-chip bc-pix">PIX</span>
           </div>
         </div>
@@ -1808,6 +1975,7 @@
                 <th>Elo/Cabal</th>
                 <th>VerdeCard</th>
                 <th>Banricard</th>
+                <th>Banricompras</th>
                 <th>PIX</th>
               </tr>
             </thead>
@@ -1911,12 +2079,12 @@
                 <option value="10">10x</option>
                 <option value="11">11x</option>
                 <option value="12">12x</option>
-                <option value="13">13x</option>
-                <option value="14">14x</option>
-                <option value="15">15x</option>
-                <option value="16">16x</option>
-                <option value="17">17x</option>
-                <option value="18">18x</option>
+                <option value="13" class="opt-over12">13x</option>
+                <option value="14" class="opt-over12">14x</option>
+                <option value="15" class="opt-over12">15x</option>
+                <option value="16" class="opt-over12">16x</option>
+                <option value="17" class="opt-over12">17x</option>
+                <option value="18" class="opt-over12">18x</option>
               </select>
             </div>
           </div>
@@ -1980,6 +2148,38 @@
         <button class="cnpj-search-btn" id="cnpj-search-btn" onclick="buscarCNPJ()">Buscar</button>
       </div>
       <div class="cnpj-result-area" id="cnpj-result-area"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL AVISO BANRICOMPRAS -->
+<div class="modal-overlay" id="bcp-modal-overlay" onclick="if(event.target===this) closeBcpModal()">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div>
+        <h2>⚠️ Atenção — Banricompras</h2>
+        <div class="modal-sub">Taxa promocional, leia antes de simular</div>
+      </div>
+      <button class="modal-close" onclick="closeBcpModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="intro-section">
+        <p class="intro-p">
+          A taxa de <strong>0,99%</strong> do Banricompras (débito, crédito e parcelado) é <strong>promocional</strong>
+          e vale apenas pelos <strong>3 primeiros meses</strong> após a contratação da maquininha.
+        </p>
+        <p class="intro-p">
+          No crédito, essa taxa ainda soma a <strong>antecipação do plano ZAZ selecionado</strong> na simulação.
+        </p>
+        <p class="intro-p">
+          O parcelamento no Banricompras vai <strong>somente até 12x</strong> (diferente das demais bandeiras, que vão até 18x).
+        </p>
+        <p class="intro-p">
+          Após o período promocional, a taxa pode sofrer alterações conforme as condições vigentes na época.
+          Informe essa condição ao cliente antes de fechar a venda.
+        </p>
+      </div>
+      <button class="intro-start-btn" onclick="closeBcpModal()">Entendi, continuar simulação →</button>
     </div>
   </div>
 </div>
@@ -2061,6 +2261,7 @@ const PLANS = {
       elo: { deb: 0.0189, cred: 0.0389, p2a6: 0.0399, p7a12: 0.0399 },
       vc:  { deb: 0.0199, cred: 0.04,   p2a12: 0.04  },
       ban: 0.059,
+      bcp: { deb: 0.0099, cred: 0.0099, p2a6: 0.0099, p7a12: 0.0099 },
       pix: 0.0135,
       antecip: 0.0319
     },
@@ -2069,6 +2270,7 @@ const PLANS = {
       elo: { deb: 0.0189, cred: 0.0199, p2a6: 0.0219, p7a12: 0.0219 },
       vc:  { deb: 0.0199, cred: 0.04,   p2a12: 0.04  },
       ban: 0.059,
+      bcp: { deb: 0.0099, cred: 0.0099, p2a6: 0.0099, p7a12: 0.0099 },
       pix: 0.0135,
       antecip: 0.0279
     }
@@ -2080,6 +2282,7 @@ const PLANS = {
       elo: { deb: 0.0179, cred: 0.0309, p2a6: 0.0359, p7a12: 0.0359 },
       vc:  { deb: 0.0199, cred: 0.04,   p2a12: 0.04  },
       ban: 0.059,
+      bcp: { deb: 0.0099, cred: 0.0099, p2a6: 0.0099, p7a12: 0.0099 },
       pix: 0.0099,
       antecip: 0.0239
     },
@@ -2088,6 +2291,7 @@ const PLANS = {
       elo: { deb: 0.0179, cred: 0.0179, p2a6: 0.0199, p7a12: 0.0199 },
       vc:  { deb: 0.0199, cred: 0.04,   p2a12: 0.04  },
       ban: 0.059,
+      bcp: { deb: 0.0099, cred: 0.0099, p2a6: 0.0099, p7a12: 0.0099 },
       pix: 0.0099,
       antecip: 0.0209
     }
@@ -2099,6 +2303,7 @@ const PLANS = {
       elo: { deb: 0.0179, cred: 0.0309, p2a6: 0.0359, p7a12: 0.0359 },
       vc:  { deb: 0.0199, cred: 0.04,   p2a12: 0.04  },
       ban: 0.059,
+      bcp: { deb: 0.0099, cred: 0.0099, p2a6: 0.0099, p7a12: 0.0099 },
       pix: 0.0099,
       antecip: 0.0219
     },
@@ -2107,6 +2312,7 @@ const PLANS = {
       elo: { deb: 0.0179, cred: 0.0179, p2a6: 0.0199, p7a12: 0.0199 },
       vc:  { deb: 0.0199, cred: 0.04,   p2a12: 0.04  },
       ban: 0.059,
+      bcp: { deb: 0.0099, cred: 0.0099, p2a6: 0.0099, p7a12: 0.0099 },
       pix: 0.0099,
       antecip: 0.0189
     }
@@ -2118,6 +2324,7 @@ const PLANS = {
       elo: { deb: 0.0179, cred: 0.0309, p2a6: 0.0359, p7a12: 0.0359 },
       vc:  { deb: 0.0199, cred: 0.04,   p2a12: 0.04  },
       ban: 0.059,
+      bcp: { deb: 0.0099, cred: 0.0099, p2a6: 0.0099, p7a12: 0.0099 },
       pix: 0.0099,
       antecip: 0.0219
     },
@@ -2126,6 +2333,7 @@ const PLANS = {
       elo: { deb: 0.0179, cred: 0.0179, p2a6: 0.0199, p7a12: 0.0199 },
       vc:  { deb: 0.0199, cred: 0.04,   p2a12: 0.04  },
       ban: 0.059,
+      bcp: { deb: 0.0099, cred: 0.0099, p2a6: 0.0099, p7a12: 0.0099 },
       pix: 0.0099,
       antecip: 0.0189
     }
@@ -2137,6 +2345,7 @@ const PLANS = {
       elo: { deb: 0.0149, cred: 0.0259, p2a6: 0.0309, p7a12: 0.0309 },
       vc:  { deb: 0.0199, cred: 0.04,   p2a12: 0.04  },
       ban: 0.059,
+      bcp: { deb: 0.0099, cred: 0.0099, p2a6: 0.0099, p7a12: 0.0099 },
       pix: 0.0089,
       antecip: 0.0209
     },
@@ -2145,6 +2354,7 @@ const PLANS = {
       elo: { deb: 0.0149, cred: 0.0179, p2a6: 0.0199, p7a12: 0.0199 },
       vc:  { deb: 0.0199, cred: 0.04,   p2a12: 0.04  },
       ban: 0.059,
+      bcp: { deb: 0.0099, cred: 0.0099, p2a6: 0.0099, p7a12: 0.0099 },
       pix: 0.0089,
       antecip: 0.0179
     }
@@ -2156,6 +2366,7 @@ const PLANS = {
       elo: { deb: 0.0149, cred: 0.0259, p2a6: 0.0309, p7a12: 0.0309 },
       vc:  { deb: 0.0199, cred: 0.04,   p2a12: 0.04  },
       ban: 0.059,
+      bcp: { deb: 0.0099, cred: 0.0099, p2a6: 0.0099, p7a12: 0.0099 },
       pix: 0.0089,
       antecip: 0.0209
     },
@@ -2164,6 +2375,7 @@ const PLANS = {
       elo: { deb: 0.0149, cred: 0.0179, p2a6: 0.0199, p7a12: 0.0199 },
       vc:  { deb: 0.0199, cred: 0.04,   p2a12: 0.04  },
       ban: 0.059,
+      bcp: { deb: 0.0099, cred: 0.0099, p2a6: 0.0099, p7a12: 0.0099 },
       pix: 0.0089,
       antecip: 0.0179
     }
@@ -2175,6 +2387,7 @@ const PLANS = {
       elo: { deb: 0.0149, cred: 0.0259, p2a6: 0.0309, p7a12: 0.0309 },
       vc:  { deb: 0.0199, cred: 0.04,   p2a12: 0.04  },
       ban: 0.059,
+      bcp: { deb: 0.0099, cred: 0.0099, p2a6: 0.0099, p7a12: 0.0099 },
       pix: 0.0079,
       antecip: 0.0209
     },
@@ -2183,6 +2396,7 @@ const PLANS = {
       elo: { deb: 0.0149, cred: 0.0179, p2a6: 0.0199, p7a12: 0.0199 },
       vc:  { deb: 0.0199, cred: 0.04,   p2a12: 0.04  },
       ban: 0.059,
+      bcp: { deb: 0.0099, cred: 0.0099, p2a6: 0.0099, p7a12: 0.0099 },
       pix: 0.0079,
       antecip: 0.0169
     }
@@ -2194,6 +2408,7 @@ const PLANS = {
       elo: { deb: 0.0149, cred: 0.0259, p2a6: 0.0309, p7a12: 0.0309 },
       vc:  { deb: 0.0199, cred: 0.04,   p2a12: 0.04  },
       ban: 0.059,
+      bcp: { deb: 0.0099, cred: 0.0099, p2a6: 0.0099, p7a12: 0.0099 },
       pix: 0.0069,
       antecip: 0.0199
     },
@@ -2202,6 +2417,7 @@ const PLANS = {
       elo: { deb: 0.0149, cred: 0.0179, p2a6: 0.0199, p7a12: 0.0199 },
       vc:  { deb: 0.0199, cred: 0.04,   p2a12: 0.04  },
       ban: 0.059,
+      bcp: { deb: 0.0099, cred: 0.0099, p2a6: 0.0099, p7a12: 0.0099 },
       pix: 0.0069,
       antecip: 0.0159
     }
@@ -2213,6 +2429,7 @@ const PLANS = {
       elo: { deb: 0.0149, cred: 0.0259, p2a6: 0.0309, p7a12: 0.0309 },
       vc:  { deb: 0.0199, cred: 0.04,   p2a12: 0.04  },
       ban: 0.059,
+      bcp: { deb: 0.0099, cred: 0.0099, p2a6: 0.0099, p7a12: 0.0099 },
       pix: 0.0069,
       antecip: 0.0179
     },
@@ -2221,6 +2438,7 @@ const PLANS = {
       elo: { deb: 0.0149, cred: 0.0249, p2a6: 0.0299, p7a12: 0.0299 },
       vc:  { deb: 0.0199, cred: 0.04,   p2a12: 0.04  },
       ban: 0.059,
+      bcp: { deb: 0.0099, cred: 0.0099, p2a6: 0.0099, p7a12: 0.0099 },
       pix: 0.0069,
       antecip: 0.0149
     }
@@ -2232,6 +2450,7 @@ const PLANS = {
       elo: { deb: 0.0149, cred: 0.0259, p2a6: 0.0309, p7a12: 0.0309 },
       vc:  { deb: 0.0199, cred: 0.04,   p2a12: 0.04  },
       ban: 0.059,
+      bcp: { deb: 0.0099, cred: 0.0099, p2a6: 0.0099, p7a12: 0.0099 },
       pix: 0.0069,
       antecip: 0.0179
     },
@@ -2240,6 +2459,7 @@ const PLANS = {
       elo: { deb: 0.0149, cred: 0.0249, p2a6: 0.0299, p7a12: 0.0299 },
       vc:  { deb: 0.0199, cred: 0.04,   p2a12: 0.04  },
       ban: 0.059,
+      bcp: { deb: 0.0099, cred: 0.0099, p2a6: 0.0099, p7a12: 0.0099 },
       pix: 0.0069,
       antecip: 0.0149
     }
@@ -2307,6 +2527,7 @@ function getMDR(pd, brand, method, inst) {
   if (method === 'debito')  return b.deb  !== undefined ? b.deb  : null;
   if (method === 'credito') return b.cred !== undefined ? b.cred : null;
   if (method === 'parc') {
+    if (brand === 'bcp' && inst > 12) return null; // Banricompras parcela somente até 12x
     if (brand === 'vc') return b.p2a12; // VerdeCard tem taxa única para parcelado (2x a 18x)
     return inst <= 6 ? b.p2a6 : b.p7a12; // 7x a 18x usam a mesma taxa p7a12
   }
@@ -2434,10 +2655,10 @@ function renderPlanTable() {
       : 'Cliente escolhe se quer antecipar; taxa aplicada somente se solicitado';
 
   const rows = [
-    { label: 'Débito',           vm: pd.vm?.deb,    elo: pd.elo?.deb,    vc: pd.vc?.deb,   ban: pd.ban, pix: pd.pix, isDebito: true },
-    { label: 'Crédito 1x',       vm: pd.vm?.cred,   elo: pd.elo?.cred,   vc: pd.vc?.cred,  ban: null,   pix: null    },
-    { label: 'Parcelado 2–6x',   vm: pd.vm?.p2a6,   elo: pd.elo?.p2a6,   vc: pd.vc?.p2a12, ban: null,   pix: null    },
-    { label: 'Parcelado 7–18x',  vm: pd.vm?.p7a12,  elo: pd.elo?.p7a12,  vc: pd.vc?.p2a12, ban: null,   pix: null    },
+    { label: 'Débito',           vm: pd.vm?.deb,    elo: pd.elo?.deb,    vc: pd.vc?.deb,   ban: pd.ban, bcp: pd.bcp?.deb,  pix: pd.pix, isDebito: true },
+    { label: 'Crédito 1x',       vm: pd.vm?.cred,   elo: pd.elo?.cred,   vc: pd.vc?.cred,  ban: null,   bcp: pd.bcp?.cred, pix: null    },
+    { label: 'Parcelado 2–6x',   vm: pd.vm?.p2a6,   elo: pd.elo?.p2a6,   vc: pd.vc?.p2a12, ban: null,   bcp: pd.bcp?.p2a6, pix: null    },
+    { label: 'Parcelado 7–18x',  vm: pd.vm?.p7a12,  elo: pd.elo?.p7a12,  vc: pd.vc?.p2a12, ban: null,   bcp: pd.bcp?.p7a12,pix: null    },
   ];
 
   const cell = (val, highlight) => {
@@ -2453,6 +2674,7 @@ function renderPlanTable() {
       ${cell(r.elo, false)}
       ${cell(r.vc,  false)}
       ${cell(r.ban, false)}
+      ${cell(r.bcp, false)}
       ${cell(r.pix, false)}
     </tr>`;
   }
@@ -2462,15 +2684,16 @@ function renderPlanTable() {
   html += `<tr style="background:rgba(0,194,220,0.05)">
     <td style="color:var(--accent-dark);font-weight:800">${antecipLabel}</td>
     <td class="hl-accent" colspan="2">${fmtPct(pd.antecip)}</td>
-    <td class="dash" colspan="3">—</td>
+    <td class="dash" colspan="4">—</td>
   </tr>`;
 
   document.getElementById('plan-tbody').innerHTML = html;
 
   document.getElementById('plan-antecip-foot').innerHTML =
-    type === 'aut'
+    (type === 'aut'
       ? `<strong>Antecipação automática:</strong> ${fmtPct(pd.antecip)} a.m. — já refletida nas taxas de crédito e parcelado`
-      : `<strong>Antecipação opcional:</strong> ${fmtPct(pd.antecip)} a.m. — cobrada somente quando o cliente solicita a antecipação`;
+      : `<strong>Antecipação opcional:</strong> ${fmtPct(pd.antecip)} a.m. — cobrada somente quando o cliente solicita a antecipação`)
+    + `<br><strong>Banricompras:</strong> parcela somente até 12x — taxa promocional de ${fmtPct(pd.bcp?.deb ?? 0.0099)}, válida por 3 meses após a contratação`;
 }
 
 // ===================== RENDER RESULTADO PRINCIPAL =====================
@@ -2531,7 +2754,8 @@ function render() {
     brand === 'vm'  ? 'Visa / Mastercard' :
     brand === 'elo' ? 'Elo / Cabal'       :
     brand === 'vc'  ? 'VerdeCard'         :
-    brand === 'ban' ? 'Banricard'         : 'PIX';
+    brand === 'ban' ? 'Banricard'         :
+    brand === 'bcp' ? 'Banricompras'      : 'PIX';
 
   const compLabel = isVeroComp
     ? `ZAZ ${state.compPlan} · ${state.compAntecipType === 'aut' ? 'Automática' : 'Opcional'}`
@@ -2863,7 +3087,8 @@ function renderInstallmentList(saleValue) {
 
   const brandLabel =
     brand === 'vm'  ? 'Visa/Mastercard' :
-    brand === 'elo' ? 'Elo/Cabal'       : 'VerdeCard';
+    brand === 'elo' ? 'Elo/Cabal'       :
+    brand === 'bcp' ? 'Banricompras'    : 'VerdeCard';
   subEl.textContent = `${brandLabel} · Plano ZAZ ${state.plan} · ${state.antecipType === 'aut' ? 'Antecip. Automática' : 'Antecip. Opcional'}`;
 
   let rowsHtml = '';
@@ -2969,12 +3194,31 @@ bindToggle('antecip-type-group', 'antecipType', () => {
   if (isAut) state.inclAdv = true;
 });
 
+function updateInstallmentOptions() {
+  const maxInst = state.brand === 'bcp' ? 12 : 18;
+  document.querySelectorAll('.opt-over12').forEach(opt => {
+    opt.hidden   = maxInst < 13;
+    opt.disabled = maxInst < 13;
+  });
+  const instSel = document.getElementById('installments');
+  if (maxInst < 13 && parseInt(instSel.value) > maxInst) {
+    instSel.value = String(maxInst);
+    state.inst = maxInst;
+  }
+  const msSel = document.getElementById('ms-avg-inst');
+  if (maxInst < 13 && parseInt(msSel.value) > maxInst) {
+    msSel.value = String(maxInst);
+  }
+}
+
 bindToggle('brand-group', 'brand', () => {
   const brand  = state.brand;
   const noParc = brand === 'ban' || brand === 'pix';
   document.getElementById('method-field').classList.toggle('hidden', noParc);
   document.getElementById('inst-field').classList.add('hidden');
   if (noParc) state.method = 'debito';
+  updateInstallmentOptions();
+  if (brand === 'bcp') openBcpModal();
 });
 
 bindToggle('method-group', 'method', () => {
@@ -3235,12 +3479,12 @@ function buildProposalHTML(includeAutoPrint) {
   let compHTML = '';
 
   const baseRows = [
-    { label:'Débito',           vm: pd.vm?.deb,   elo: pd.elo?.deb,   vc: pd.vc?.deb   },
-    { label:'Crédito 1x',       vm: pd.vm?.cred,  elo: pd.elo?.cred,  vc: pd.vc?.cred  },
-    { label:'Parcelado 2–6x',   vm: pd.vm?.p2a6,  elo: pd.elo?.p2a6,  vc: pd.vc?.p2a12 },
-    { label:'Parcelado 7–18x',  vm: pd.vm?.p7a12, elo: pd.elo?.p7a12, vc: pd.vc?.p2a12 },
-    { label:'PIX',              vm: pd.pix,        elo: pd.pix,        vc: null          },
-    { label:'Voucher Banricard', vm: pd.ban,       elo: pd.ban,        vc: null          },
+    { label:'Débito',           vm: pd.vm?.deb,   elo: pd.elo?.deb,   vc: pd.vc?.deb,   bcp: pd.bcp?.deb   },
+    { label:'Crédito 1x',       vm: pd.vm?.cred,  elo: pd.elo?.cred,  vc: pd.vc?.cred,  bcp: pd.bcp?.cred  },
+    { label:'Parcelado 2–6x',   vm: pd.vm?.p2a6,  elo: pd.elo?.p2a6,  vc: pd.vc?.p2a12, bcp: pd.bcp?.p2a6  },
+    { label:'Parcelado 7–18x',  vm: pd.vm?.p7a12, elo: pd.elo?.p7a12, vc: pd.vc?.p2a12, bcp: pd.bcp?.p7a12 },
+    { label:'PIX',              vm: pd.pix,        elo: pd.pix,        vc: null,         bcp: null          },
+    { label:'Voucher Banricard', vm: pd.ban,       elo: pd.ban,        vc: null,         bcp: null          },
   ];
 
   const baseTableRows = baseRows.map(r => `
@@ -3249,13 +3493,14 @@ function buildProposalHTML(includeAutoPrint) {
       <td class="rate">${r.vm  != null ? p(r.vm)  : '—'}</td>
       <td class="rate">${r.elo != null ? p(r.elo) : '—'}</td>
       <td class="rate">${r.vc  != null ? p(r.vc)  : '—'}</td>
+      <td class="rate">${r.bcp != null ? p(r.bcp) : '—'}</td>
     </tr>`).join('');
 
   // ── Seção de Projeção de Faturamento Mensal ────────────────────
   let monthlySectionHTML = '';
   if (monthlySimData) {
     const ms = monthlySimData;
-    const brandLabelMS = state.brand === 'vm' ? 'Visa/Mastercard' : state.brand === 'elo' ? 'Elo/Cabal' : state.brand === 'vc' ? 'VerdeCard' : state.brand === 'ban' ? 'Banricard' : 'PIX';
+    const brandLabelMS = state.brand === 'vm' ? 'Visa/Mastercard' : state.brand === 'elo' ? 'Elo/Cabal' : state.brand === 'vc' ? 'VerdeCard' : state.brand === 'ban' ? 'Banricard' : state.brand === 'bcp' ? 'Banricompras' : 'PIX';
     const gainAnnualMS = ms.gainMonthly !== null ? ms.gainMonthly * 12 : null;
 
     monthlySectionHTML = `
@@ -3379,6 +3624,7 @@ body{
 .br-elo{ background:#FFF8E1; color:#7A5C00; border-color:#D4A800; }
 .br-vc { background:#E8F5E9; color:#1a6b30; border-color:#4CAF50; }
 .br-ban{ background:#FDE8E8; color:#8B1A1A; border-color:#D44; }
+.br-bcp{ background:#F3E8FF; color:#5b21a6; border-color:#A855F7; }
 .br-pix{ background:#E0F7FA; color:#005F6B; border-color:#00BCD4; }
 
 /* ── CONTENT WRAPPER ───────────────────────────── */
@@ -3532,6 +3778,7 @@ td.g-eq { color:#8A8A9A; text-align:center; }
   <span class="br-pill br-elo">Elo / Cabal</span>
   <span class="br-pill br-vc">VerdeCard</span>
   <span class="br-pill br-ban">Banricard</span>
+  <span class="br-pill br-bcp">Banricompras (promo. 3 meses)</span>
   <span class="br-pill br-pix">PIX</span>
 </div>
 
@@ -3542,7 +3789,7 @@ td.g-eq { color:#8A8A9A; text-align:center; }
       <div class="sec-title">💳 Taxas Base (MDR) por Bandeira</div>
       <div class="sec-sub">${isAut ? 'Taxas MDR — taxa efetiva com antecipação na tabela seguinte' : 'Taxas MDR sem antecipação — taxa total na tabela seguinte'}</div>
       <table>
-        <thead><tr><th>Modalidade</th><th class="r">Visa/MC</th><th class="r">Elo/Cabal</th><th class="r">VerdeCard</th></tr></thead>
+        <thead><tr><th>Modalidade</th><th class="r">Visa/MC</th><th class="r">Elo/Cabal</th><th class="r">VerdeCard</th><th class="r">Banricompras*</th></tr></thead>
         <tbody>${baseTableRows}</tbody>
       </table>
     </div>
@@ -3565,6 +3812,7 @@ td.g-eq { color:#8A8A9A; text-align:center; }
     <div class="ft-notes">
       * Taxa composta: MDR + (antecip. × fator), fator = (n+1)/2 para parcelado, 1× para crédito à vista, 0 para débito/PIX.<br>
       * PIX: ${p(pd.pix)} &nbsp;·&nbsp; Voucher Banricard: ${p(pd.ban)} &nbsp;·&nbsp; VerdeCard Débito: ${pd.vc?.deb != null ? p(pd.vc.deb) : '—'}<br>
+      * <strong>Banricompras: taxa de ${p(pd.bcp?.deb)} promocional, válida por 3 meses a partir da contratação da maquininha; no crédito soma-se a antecipação do plano. Parcela somente até 12x. Após o período promocional, sujeita a alterações.</strong><br>
       * Taxas válidas conforme contrato firmado com a Vero Banrisul. Sujeitas a alterações conforme condições vigentes.
     </div>
     <div class="ft-brand">
@@ -3750,7 +3998,8 @@ function sendWhatsApp() {
     brand === 'vm'  ? 'Visa/Mastercard' :
     brand === 'elo' ? 'Elo/Cabal'       :
     brand === 'vc'  ? 'VerdeCard'       :
-    brand === 'ban' ? 'Banricard'       : 'PIX';
+    brand === 'ban' ? 'Banricard'       :
+    brand === 'bcp' ? 'Banricompras'    : 'PIX';
 
   let msg = `*Simulação de Taxas — Vero × ZAZ Vendas*\n\n`;
   msg += `🏪 Estabelecimento: ${estab}\n`;
@@ -3938,6 +4187,13 @@ function toggleCollapse(cardId) {
   document.getElementById(cardId).classList.toggle('collapsed');
 }
 
+function openBcpModal() {
+  document.getElementById('bcp-modal-overlay').classList.add('open');
+}
+function closeBcpModal() {
+  document.getElementById('bcp-modal-overlay').classList.remove('open');
+}
+
 function openCnpjModal() {
   document.getElementById('cnpj-modal-overlay').classList.add('open');
   document.getElementById('cnpj-input').focus();
@@ -3957,7 +4213,7 @@ function closeIntroModal() {
 }
 
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') { closeCnpjModal(); closeIntroModal(); }
+  if (e.key === 'Escape') { closeCnpjModal(); closeIntroModal(); closeBcpModal(); }
 });
 
 // Mostra o guia de boas-vindas automaticamente na primeira visita
@@ -4132,18 +4388,11 @@ function useCnpjData(razaoSocial, nomeFantasia) {
 }
 
 // Init
+updateInstallmentOptions();
 render();
-
-// Registra o service worker (permite instalar como app e funcionar offline).
-// Só funciona quando hospedado via https:// (não funciona abrindo o arquivo direto do disco).
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js').catch(() => {
-      // Falha silenciosa: se não conseguir registrar (ex: aberto via file://), o site
-      // continua funcionando normalmente, só sem o modo instalável/offline.
-    });
-  });
-}
 </script>
+
+<!-- PWA: registra service worker + botao "Instalar App" -->
+<script src="pwa-install.js"></script>
 </body>
 </html>
