@@ -153,21 +153,46 @@
       padding: 20px calc(16px + env(safe-area-inset-right)) 60px calc(16px + env(safe-area-inset-left));
     }
 
+    /* LAYOUT — grid com áreas nomeadas: no desktop mantém a organização original em
+       2 colunas; no celular reorganiza pra ordem: plano, taxas, venda, comparação,
+       mensal, resultado, parcela, pdf. Cada card recebe grid-area via sua classe .ga-*. */
     .layout {
       display: grid;
-      grid-template-columns: minmax(0, 390px) minmax(0, 1fr);
       gap: 16px;
       align-items: start;
+      grid-template-columns: minmax(0, 390px) minmax(0, 1fr);
+      grid-template-areas:
+        "plano      taxas"
+        "venda      resultado"
+        "comparacao parcela"
+        "pdf        mensal";
     }
 
-    @media (max-width: 760px) { .layout { grid-template-columns: 1fr; } }
+    @media (max-width: 760px) {
+      .layout {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+          "plano"
+          "taxas"
+          "venda"
+          "comparacao"
+          "mensal"
+          "resultado"
+          "parcela"
+          "pdf";
+      }
+    }
 
-    .layout > *,
-    .col-inputs > *,
-    .col-result > * { min-width: 0; }
+    .ga-plano      { grid-area: plano; }
+    .ga-taxas      { grid-area: taxas; }
+    .ga-venda      { grid-area: venda; }
+    .ga-comparacao { grid-area: comparacao; }
+    .ga-pdf        { grid-area: pdf; }
+    .ga-resultado  { grid-area: resultado; }
+    .ga-parcela    { grid-area: parcela; }
+    .ga-mensal     { grid-area: mensal; }
 
-    .col-inputs { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
-    .col-result  { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+    .layout > * { min-width: 0; }
 
     /* CARDS */
     .card {
@@ -1563,16 +1588,18 @@
 <main>
   <div class="layout">
 
-    <!-- ===== COLUNA INPUTS ===== -->
-    <div class="col-inputs">
+    <!-- Os 8 cards abaixo têm posição definida via CSS Grid (grid-area).
+         Desktop: layout original em 2 colunas. Celular: ordem reorganizada. -->
 
       <!-- Configuração do Plano -->
-      <div class="card">
-        <div class="card-title">
-          <span class="card-title-icon">📋</span>
-          Configuração do Plano
+      <div class="result-card ga-plano">
+        <div class="result-head">
+          <div>
+            <h2>📋 Configuração do Plano</h2>
+          </div>
           <button type="button" class="help-icon-btn" onclick="openHelpModal('plano')" aria-label="Ajuda sobre Configuração do Plano">?</button>
         </div>
+        <div class="result-body">
 
         <div class="field">
           <span class="field-label">Faturamento mensal do cliente</span>
@@ -1621,15 +1648,63 @@
           <div class="ai-value" id="antecip-rate-display">—</div>
           <div class="ai-sub" id="antecip-type-desc">Antecipação automática aplicada em crédito e parcelado</div>
         </div>
+        </div>
+      </div>
+
+      <!-- Tabela do Plano -->
+      <div class="plan-card ga-taxas" id="plan-card">
+        <div class="plan-head">
+          <div class="plan-head-row">
+            <div class="plan-head-left">
+              <img class="h-maq-img" src="https://www.sejavero.com.br/bod/link/midias/21030_smart-maquinas-394x270.png" alt="Maquininha Vero" />
+              <div>
+                <div class="plan-title" id="plan-title">ZAZ 0015</div>
+                <div class="plan-title"><span id="plan-fat-sub">Faturamento mínimo: R$ 20.000</span></div>
+              </div>
+            </div>
+            <div class="plan-type-badge aut" id="plan-type-badge">AUTOMÁTICA</div>
+          </div>
+          <div class="plan-brands">
+            <span class="brand-chip bc-vm">Visa/Master</span>
+            <span class="brand-chip bc-elo">Elo/Cabal</span>
+            <span class="brand-chip bc-vc">VerdeCard</span>
+            <span class="brand-chip bc-ban">Banricard</span>
+            <span class="brand-chip bc-bcp">Banricompras</span>
+            <span class="brand-chip bc-pix">PIX</span>
+          </div>
+        </div>
+
+        <div class="plan-table-wrap">
+          <table class="plan-table">
+            <thead>
+              <tr>
+                <th>Modalidade</th>
+                <th class="col-hl">Visa/Master</th>
+                <th>Elo/Cabal</th>
+                <th>VerdeCard</th>
+                <th>Banricard</th>
+                <th>Banricompras</th>
+                <th>PIX</th>
+              </tr>
+            </thead>
+            <tbody id="plan-tbody"></tbody>
+          </table>
+        </div>
+
+        <div class="plan-foot">
+          <div id="plan-antecip-foot"></div>
+        </div>
       </div>
 
       <!-- Dados da Venda -->
-      <div class="card">
-        <div class="card-title">
-          <span class="card-title-icon">💰</span>
-          Dados da Venda
+      <div class="result-card ga-venda">
+        <div class="result-head">
+          <div>
+            <h2>💰 Dados da Venda</h2>
+          </div>
           <button type="button" class="help-icon-btn" onclick="openHelpModal('venda')" aria-label="Ajuda sobre Dados da Venda">?</button>
         </div>
+        <div class="result-body">
 
         <div class="field">
           <span class="field-label">Valor da venda</span>
@@ -1694,15 +1769,20 @@
             </div>
           </label>
         </div>
+        </div>
       </div>
 
       <!-- Comparação -->
-      <div class="card">
-        <div class="card-title">
-          <span class="card-title-icon">⚔️</span>
-          Comparação
-          <button type="button" class="help-icon-btn" onclick="openHelpModal('comparacao')" aria-label="Ajuda sobre Comparação">?</button>
+      <div class="result-card collapsed ga-comparacao" id="comparacao-card">
+        <div class="result-head collapsible" onclick="toggleCollapse('comparacao-card')">
+          <div>
+            <h2>⚔️ Comparação</h2>
+            <div class="rh-sub">Compare a Vero com o concorrente ou outro plano Vero</div>
+          </div>
+          <button type="button" class="help-icon-btn" onclick="event.stopPropagation(); openHelpModal('comparacao')" aria-label="Ajuda sobre Comparação">?</button>
+          <span class="collapse-arrow">▲</span>
         </div>
+        <div class="result-body">
 
         <div class="field">
           <div class="toggle-group" id="comp-mode-group">
@@ -1948,10 +2028,11 @@
           </div>
         </div>
 
+        </div>
       </div>
 
       <!-- Gerar Proposta PDF -->
-      <div class="export-card">
+      <div class="export-card ga-pdf">
         <div class="card-title">
           <span class="card-title-icon">📄</span>
           Gerar Proposta PDF
@@ -2042,58 +2123,8 @@
         </div>
       </div>
 
-    </div>
-
-    <!-- ===== COLUNA RESULTADO ===== -->
-    <div class="col-result">
-
-      <!-- Tabela do Plano -->
-      <div class="plan-card" id="plan-card">
-        <div class="plan-head">
-          <div class="plan-head-row">
-            <div class="plan-head-left">
-              <img class="h-maq-img" src="https://www.sejavero.com.br/bod/link/midias/21030_smart-maquinas-394x270.png" alt="Maquininha Vero" />
-              <div>
-                <div class="plan-title" id="plan-title">ZAZ 0015</div>
-                <div class="plan-title"><span id="plan-fat-sub">Faturamento mínimo: R$ 20.000</span></div>
-              </div>
-            </div>
-            <div class="plan-type-badge aut" id="plan-type-badge">AUTOMÁTICA</div>
-          </div>
-          <div class="plan-brands">
-            <span class="brand-chip bc-vm">Visa/Master</span>
-            <span class="brand-chip bc-elo">Elo/Cabal</span>
-            <span class="brand-chip bc-vc">VerdeCard</span>
-            <span class="brand-chip bc-ban">Banricard</span>
-            <span class="brand-chip bc-bcp">Banricompras</span>
-            <span class="brand-chip bc-pix">PIX</span>
-          </div>
-        </div>
-
-        <div class="plan-table-wrap">
-          <table class="plan-table">
-            <thead>
-              <tr>
-                <th>Modalidade</th>
-                <th class="col-hl">Visa/Master</th>
-                <th>Elo/Cabal</th>
-                <th>VerdeCard</th>
-                <th>Banricard</th>
-                <th>Banricompras</th>
-                <th>PIX</th>
-              </tr>
-            </thead>
-            <tbody id="plan-tbody"></tbody>
-          </table>
-        </div>
-
-        <div class="plan-foot">
-          <div id="plan-antecip-foot"></div>
-        </div>
-      </div>
-
       <!-- Resultado -->
-      <div class="result-card" id="result-card">
+      <div class="result-card ga-resultado" id="result-card">
         <div class="result-head">
           <h2 id="result-title">Resultado da Simulação</h2>
           <div class="rh-sub" id="result-sub">Preencha o valor da venda para calcular</div>
@@ -2107,7 +2138,7 @@
       </div>
 
       <!-- Parcela a Parcela (1x a 18x) -->
-      <div class="result-card" id="installment-list-card">
+      <div class="result-card ga-parcela" id="installment-list-card">
         <div class="result-head collapsible" onclick="toggleCollapse('installment-list-card')">
           <div>
             <h2>Parcela a Parcela</h2>
@@ -2125,7 +2156,7 @@
       </div>
 
       <!-- Simulação de Faturamento Mensal -->
-      <div class="result-card" id="monthly-sim-card">
+      <div class="result-card ga-mensal" id="monthly-sim-card">
         <div class="result-head collapsible" onclick="toggleCollapse('monthly-sim-card')">
           <div>
             <h2>Simulação de Faturamento Mensal</h2>
@@ -2201,7 +2232,6 @@
         </div>
       </div>
 
-    </div>
   </div>
 
   <!-- COMPARATIVO TOGGLE -->
