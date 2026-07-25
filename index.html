@@ -927,6 +927,14 @@
     }
     .btn-whatsapp:hover { background: #20bd5a; }
 
+    .btn-export-simple {
+      background: rgba(255,255,255,0.14);
+      color: #fff;
+      border: 1.5px solid rgba(255,255,255,0.35);
+      box-shadow: none;
+    }
+    .btn-export-simple:hover { background: rgba(255,255,255,0.22); }
+
     .btn-whatsapp-note {
       margin-top: 8px;
       font-size: 10.5px;
@@ -934,6 +942,59 @@
       color: rgba(255,255,255,0.65);
       text-align: center;
     }
+
+    /* ÍCONE DE AJUDA (abre modal explicativo por card) */
+    .help-icon-btn {
+      margin-left: auto;
+      flex-shrink: 0;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 1.5px solid var(--border);
+      background: #fff;
+      color: var(--subtext);
+      font-size: 11px;
+      font-weight: 800;
+      line-height: 1;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+    }
+    .help-icon-btn:hover {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+    }
+    .export-card .help-icon-btn {
+      border-color: rgba(255,255,255,0.4);
+      background: rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.8);
+    }
+    .export-card .help-icon-btn:hover {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: var(--primary);
+    }
+    .result-head .help-icon-btn {
+      border-color: rgba(255,255,255,0.4);
+      background: rgba(255,255,255,0.12);
+      color: #fff;
+    }
+    .result-head .help-icon-btn:hover {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: var(--primary);
+    }
+
+    .help-modal-body { font-size: 13px; line-height: 1.7; color: var(--text); }
+    .help-modal-body p { margin-bottom: 10px; }
+    .help-modal-body p:last-child { margin-bottom: 0; }
+    .help-modal-body strong { color: var(--primary); }
+    .help-modal-body ul { margin: 8px 0 12px 18px; }
+    .help-modal-body li { margin-bottom: 6px; }
 
     /* INSTALLMENT LIST (1x-18x) */
     .il-row {
@@ -1510,6 +1571,7 @@
         <div class="card-title">
           <span class="card-title-icon">📋</span>
           Configuração do Plano
+          <button type="button" class="help-icon-btn" onclick="openHelpModal('plano')" aria-label="Ajuda sobre Configuração do Plano">?</button>
         </div>
 
         <div class="field">
@@ -1566,6 +1628,7 @@
         <div class="card-title">
           <span class="card-title-icon">💰</span>
           Dados da Venda
+          <button type="button" class="help-icon-btn" onclick="openHelpModal('venda')" aria-label="Ajuda sobre Dados da Venda">?</button>
         </div>
 
         <div class="field">
@@ -1638,6 +1701,7 @@
         <div class="card-title">
           <span class="card-title-icon">⚔️</span>
           Comparação
+          <button type="button" class="help-icon-btn" onclick="openHelpModal('comparacao')" aria-label="Ajuda sobre Comparação">?</button>
         </div>
 
         <div class="field">
@@ -1891,6 +1955,7 @@
         <div class="card-title">
           <span class="card-title-icon">📄</span>
           Gerar Proposta PDF
+          <button type="button" class="help-icon-btn" onclick="openHelpModal('pdf')" aria-label="Ajuda sobre Gerar Proposta PDF">?</button>
         </div>
 
         <div class="field">
@@ -1927,8 +1992,47 @@
           </label>
         </div>
 
+        <div class="field">
+          <label for="pdf-incl-parcelas">
+            <div class="check-row">
+              <input type="checkbox" id="pdf-incl-parcelas" />
+              <div>
+                <div class="check-label">Incluir amostra de parcelamento até 18x</div>
+                <div class="check-sub">Mostra a tabela completa de 1x a 18x na proposta</div>
+              </div>
+            </div>
+          </label>
+        </div>
+
+        <div class="field">
+          <label for="pdf-incl-mensal">
+            <div class="check-row">
+              <input type="checkbox" id="pdf-incl-mensal" />
+              <div>
+                <div class="check-label">Incluir projeção de faturamento mensal</div>
+                <div class="check-sub">Só entra se a Simulação de Faturamento Mensal estiver preenchida</div>
+              </div>
+            </div>
+          </label>
+        </div>
+
+        <div class="field">
+          <label for="pdf-show-cabal-vc">
+            <div class="check-row">
+              <input type="checkbox" id="pdf-show-cabal-vc" />
+              <div>
+                <div class="check-label">Mostrar taxas de Cabal e VerdeCard</div>
+                <div class="check-sub">Elo é bandeira tradicional e sempre aparece; deixe desmarcado pra ocultar só Cabal e VerdeCard</div>
+              </div>
+            </div>
+          </label>
+        </div>
+
         <button class="btn-export" onclick="generatePDF()">
           <span>⬇️</span> Exportar Proposta PDF
+        </button>
+        <button class="btn-export btn-export-simple" onclick="generateSimplePDF()">
+          <span>📋</span> PDF Só das Taxas do Plano
         </button>
         <button class="btn-export btn-whatsapp" id="whatsapp-pdf-btn" onclick="shareProposalPDF()">
           <span>💬</span> Enviar PDF por WhatsApp
@@ -2009,6 +2113,7 @@
             <h2>Parcela a Parcela</h2>
             <div class="rh-sub" id="il-sub">1x a 18x · Preencha o valor da venda</div>
           </div>
+          <button type="button" class="help-icon-btn" onclick="event.stopPropagation(); openHelpModal('parcela')" aria-label="Ajuda sobre Parcela a Parcela">?</button>
           <span class="collapse-arrow">▲</span>
         </div>
         <div class="result-body" id="installment-list-body" style="padding:10px 20px">
@@ -2026,6 +2131,7 @@
             <h2>Simulação de Faturamento Mensal</h2>
             <div class="rh-sub">Projete o ganho mensal com base no mix de vendas do cliente</div>
           </div>
+          <button type="button" class="help-icon-btn" onclick="event.stopPropagation(); openHelpModal('mensal')" aria-label="Ajuda sobre Simulação de Faturamento Mensal">?</button>
           <span class="collapse-arrow">▲</span>
         </div>
         <div class="result-body">
@@ -2230,6 +2336,22 @@
       </div>
 
       <button class="intro-start-btn" onclick="closeIntroModal()">Entendi, começar a simular →</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DE AJUDA POR FERRAMENTA -->
+<div class="modal-overlay" id="help-modal-overlay" onclick="if(event.target===this) closeHelpModal()">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div>
+        <h2 id="help-modal-title">Ajuda</h2>
+        <div class="modal-sub" id="help-modal-sub">Como usar essa ferramenta</div>
+      </div>
+      <button class="modal-close" onclick="closeHelpModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="help-modal-body" id="help-modal-body"></div>
     </div>
   </div>
 </div>
@@ -3294,21 +3416,24 @@ document.getElementById('comp-toggle').addEventListener('click', () => {
 });
 
 // ===================== GERAÇÃO DO PDF =====================
-function buildProposalHTML(includeAutoPrint) {
+function buildProposalHTML(includeAutoPrint, simpleMode) {
   const planKey     = state.plan;
   const antecipType = state.antecipType;
   const pd          = PLANS[planKey][antecipType];
   const isAut       = antecipType === 'aut';
   const estab       = document.getElementById('estab-name').value.trim() || '—';
   const promoter    = document.getElementById('promoter-name').value.trim();
-  const inclComp    = document.getElementById('pdf-incl-comp').checked;
+  const inclComp    = simpleMode ? false : document.getElementById('pdf-incl-comp').checked;
+  const inclParcelas= simpleMode ? false : document.getElementById('pdf-incl-parcelas').checked;
+  const inclMensal  = simpleMode ? false : document.getElementById('pdf-incl-mensal').checked;
+  const showCabalVc = document.getElementById('pdf-show-cabal-vc').checked;
   const today       = new Date().toLocaleDateString('pt-BR', { day:'2-digit', month:'long', year:'numeric' });
 
   const p   = n => (n * 100).toFixed(2).replace('.', ',') + '%';
   const brl = n => 'R$ ' + n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-  // ── Dados da Simulação de Faturamento Mensal (se preenchidos) ──
-  const msFatVal  = parseFloat(document.getElementById('ms-fat').value);
+  // ── Dados da Simulação de Faturamento Mensal (se preenchidos e habilitados) ──
+  const msFatVal  = simpleMode ? NaN : parseFloat(document.getElementById('ms-fat').value);
   const msPctDeb  = parseFloat(document.getElementById('ms-pct-deb').value)  || 0;
   const msPctCred = parseFloat(document.getElementById('ms-pct-cred').value) || 0;
   const msPctParc = parseFloat(document.getElementById('ms-pct-parc').value) || 0;
@@ -3492,13 +3617,14 @@ function buildProposalHTML(includeAutoPrint) {
       <td>${r.label}</td>
       <td class="rate">${r.vm  != null ? p(r.vm)  : '—'}</td>
       <td class="rate">${r.elo != null ? p(r.elo) : '—'}</td>
-      <td class="rate">${r.vc  != null ? p(r.vc)  : '—'}</td>
+      ${showCabalVc ? `<td class="rate">${r.elo != null ? p(r.elo) : '—'}</td>` : ''}
+      ${showCabalVc ? `<td class="rate">${r.vc  != null ? p(r.vc)  : '—'}</td>` : ''}
       <td class="rate">${r.bcp != null ? p(r.bcp) : '—'}</td>
     </tr>`).join('');
 
-  // ── Seção de Projeção de Faturamento Mensal ────────────────────
+  // ── Seção de Projeção de Faturamento Mensal (só entra se o checkbox estiver marcado) ──
   let monthlySectionHTML = '';
-  if (monthlySimData) {
+  if (monthlySimData && inclMensal) {
     const ms = monthlySimData;
     const brandLabelMS = state.brand === 'vm' ? 'Visa/Mastercard' : state.brand === 'elo' ? 'Elo/Cabal' : state.brand === 'vc' ? 'VerdeCard' : state.brand === 'ban' ? 'Banricard' : state.brand === 'bcp' ? 'Banricompras' : 'PIX';
     const gainAnnualMS = ms.gainMonthly !== null ? ms.gainMonthly * 12 : null;
@@ -3622,6 +3748,7 @@ body{
 .br-pill{ padding:4px 11px; border-radius:20px; font-size:9.5px; font-weight:800; border:1.5px solid; }
 .br-vm { background:#EEF2FF; color:#0A1972;  border-color:#0A1972; }
 .br-elo{ background:#FFF8E1; color:#7A5C00; border-color:#D4A800; }
+.br-cabal{ background:#FFE8D6; color:#9A3B12; border-color:#E8804A; }
 .br-vc { background:#E8F5E9; color:#1a6b30; border-color:#4CAF50; }
 .br-ban{ background:#FDE8E8; color:#8B1A1A; border-color:#D44; }
 .br-bcp{ background:#F3E8FF; color:#5b21a6; border-color:#A855F7; }
@@ -3775,8 +3902,9 @@ td.g-eq { color:#8A8A9A; text-align:center; }
 <!-- BANDEIRAS -->
 <div class="brands">
   <span class="br-pill br-vm">Visa / Mastercard</span>
-  <span class="br-pill br-elo">Elo / Cabal</span>
-  <span class="br-pill br-vc">VerdeCard</span>
+  <span class="br-pill br-elo">Elo</span>
+  ${showCabalVc ? '<span class="br-pill br-cabal">Cabal</span>' : ''}
+  ${showCabalVc ? '<span class="br-pill br-vc">VerdeCard</span>' : ''}
   <span class="br-pill br-ban">Banricard</span>
   <span class="br-pill br-bcp">Banricompras (promo. 3 meses)</span>
   <span class="br-pill br-pix">PIX</span>
@@ -3789,7 +3917,7 @@ td.g-eq { color:#8A8A9A; text-align:center; }
       <div class="sec-title">💳 Taxas Base (MDR) por Bandeira</div>
       <div class="sec-sub">${isAut ? 'Taxas MDR — taxa efetiva com antecipação na tabela seguinte' : 'Taxas MDR sem antecipação — taxa total na tabela seguinte'}</div>
       <table>
-        <thead><tr><th>Modalidade</th><th class="r">Visa/MC</th><th class="r">Elo/Cabal</th><th class="r">VerdeCard</th><th class="r">Banricompras*</th></tr></thead>
+        <thead><tr><th>Modalidade</th><th class="r">Visa/MC</th><th class="r">Elo</th>${showCabalVc ? '<th class="r">Cabal</th><th class="r">VerdeCard</th>' : ''}<th class="r">Banricompras*</th></tr></thead>
         <tbody>${baseTableRows}</tbody>
       </table>
     </div>
@@ -3803,7 +3931,7 @@ td.g-eq { color:#8A8A9A; text-align:center; }
     </div>
   </div>
 
-  ${instTableHTML}
+  ${inclParcelas ? instTableHTML : ''}
 
   ${monthlySectionHTML}
 
@@ -3839,6 +3967,13 @@ ${includeAutoPrint ? `
 
 function generatePDF() {
   const html = buildProposalHTML(true);
+  const win = window.open('', '_blank');
+  win.document.write(html);
+  win.document.close();
+}
+
+function generateSimplePDF() {
+  const html = buildProposalHTML(true, true);
   const win = window.open('', '_blank');
   win.document.write(html);
   win.document.close();
@@ -4212,8 +4347,92 @@ function closeIntroModal() {
   try { localStorage.setItem('vero_sim_intro_seen', '1'); } catch (e) { /* localStorage indisponível, sem problema */ }
 }
 
+// ===================== MODAL DE AJUDA POR FERRAMENTA =====================
+const HELP_TOPICS = {
+  plano: {
+    title: 'Configuração do Plano',
+    sub: 'Escolher o plano certo pro faturamento do cliente',
+    html: `
+      <p>Informe o <strong>faturamento mensal</strong> do cliente pra ver automaticamente quais planos ZAZ ele já pode contratar (planos com faturamento mínimo maior ficam desabilitados na lista).</p>
+      <p>Depois escolha o <strong>plano Vero</strong> desejado e o <strong>tipo de antecipação</strong>:</p>
+      <ul>
+        <li><strong>Automática:</strong> a taxa de antecipação já vem embutida nas taxas de crédito/parcelado — é mais simples de apresentar.</li>
+        <li><strong>Opcional:</strong> o cliente só paga a antecipação se pedir pra receber antes do prazo — as taxas base ficam mais baixas.</li>
+      </ul>
+      <p>O card azul mostra a taxa de antecipação vigente pra combinação que você escolheu.</p>`
+  },
+  venda: {
+    title: 'Dados da Venda',
+    sub: 'Simular uma venda específica',
+    html: `
+      <p>Preencha o <strong>valor da venda</strong>, a <strong>bandeira</strong> do cartão e a <strong>forma de pagamento</strong> (débito, crédito à vista ou parcelado).</p>
+      <p>Esses dados alimentam o resultado principal da tela, a lista "Parcela a Parcela" e também os valores em R$ que aparecem na proposta em PDF — se deixar em branco, o PDF usa R$1.000 como valor de referência.</p>`
+  },
+  comparacao: {
+    title: 'Comparação',
+    sub: 'Mostrar a vantagem da Vero pro cliente',
+    html: `
+      <p>Escolha como você quer comparar a taxa da Vero:</p>
+      <ul>
+        <li><strong>⚔️ Concorrente:</strong> você digita a taxa (MDR) e a antecipação que o cliente paga hoje, separadamente.</li>
+        <li><strong>📊 Taxa por Parcela:</strong> você digita a taxa já composta que o concorrente cobra, parcela por parcela — do jeito que geralmente aparece na proposta que o cliente já recebeu de outra maquininha.</li>
+        <li><strong>🔵 Outro Plano Vero:</strong> compara o plano atual com outro plano Vero, útil pra mostrar o ganho de evoluir de plano.</li>
+      </ul>
+      <p>O resultado e o "Ponto de Equilíbrio" (a partir de qual parcela a Vero passa a valer mais a pena) aparecem automaticamente no card de resultado.</p>`
+  },
+  parcela: {
+    title: 'Parcela a Parcela',
+    sub: 'Simulação completa de 1x a 18x',
+    html: `
+      <p>Mostra quanto o cliente recebe líquido em <strong>cada parcela, de 1x a 18x</strong>, com base no valor da venda informado.</p>
+      <p>A parcela que está selecionada em "Dados da Venda" fica destacada na lista, pra você comparar rapidinho com as demais.</p>
+      <p>Clique no título do card pra <strong>recolher ou expandir</strong> essa lista.</p>`
+  },
+  mensal: {
+    title: 'Simulação de Faturamento Mensal',
+    sub: 'Projeção de ganho — não é uma venda só',
+    html: `
+      <p>Aqui você não simula uma venda, e sim o <strong>faturamento mensal inteiro</strong> do cliente, dividido entre as formas de pagamento.</p>
+      <p>Informe o faturamento mensal e a <strong>fatia (%)</strong> que vem de débito, crédito à vista e parcelado — as três juntas precisam somar 100%. Ao preencher débito e crédito, o parcelado se ajusta sozinho.</p>
+      <p>O resultado mostra o <strong>ganho mensal projetado</strong> da Vero frente ao concorrente (ou outro plano), já multiplicado pelo volume real de vendas do cliente — é o argumento mais forte pra apresentar numa negociação.</p>`
+  },
+  pdf: {
+    title: 'Gerar Proposta PDF',
+    sub: 'Controle o que vai (ou não) pro cliente',
+    html: `
+      <p>Preencha o <strong>nome do estabelecimento</strong> e do <strong>promotor</strong> — aparecem no cabeçalho da proposta.</p>
+      <p>Os checkboxes controlam o que entra no PDF, tudo opcional:</p>
+      <ul>
+        <li><strong>Incluir comparativo:</strong> adiciona a coluna do concorrente/outro plano na tabela.</li>
+        <li><strong>Mostrar valor líquido em R$:</strong> usa o valor real da venda simulada (ou R$1.000 de referência, se estiver vazio).</li>
+        <li><strong>Amostra de parcelamento até 18x:</strong> inclui a tabela completa de parcelas — desligado por padrão, pra deixar a negociação mais estratégica.</li>
+        <li><strong>Projeção de faturamento mensal:</strong> só entra se você tiver preenchido aquele card.</li>
+        <li><strong>Mostrar Cabal e VerdeCard:</strong> desligado por padrão. Elo é bandeira tradicional e aparece sempre, igual Visa/Mastercard — esse toggle controla só Cabal e VerdeCard.</li>
+      </ul>
+      <p>Os três botões:</p>
+      <ul>
+        <li><strong>⬇️ Exportar Proposta PDF:</strong> gera a proposta completa, com tudo que você marcou acima.</li>
+        <li><strong>📋 PDF Só das Taxas do Plano:</strong> gera uma versão enxuta, só com a tabela de taxas do plano escolhido — sem comparativo, sem parcelas, sem projeção mensal.</li>
+        <li><strong>💬 Enviar PDF por WhatsApp:</strong> gera o PDF completo e já abre o compartilhamento — no celular, anexa o arquivo automaticamente.</li>
+      </ul>`
+  }
+};
+
+function openHelpModal(key) {
+  const topic = HELP_TOPICS[key];
+  if (!topic) return;
+  document.getElementById('help-modal-title').textContent = topic.title;
+  document.getElementById('help-modal-sub').textContent = topic.sub;
+  document.getElementById('help-modal-body').innerHTML = topic.html;
+  document.getElementById('help-modal-overlay').classList.add('open');
+}
+
+function closeHelpModal() {
+  document.getElementById('help-modal-overlay').classList.remove('open');
+}
+
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') { closeCnpjModal(); closeIntroModal(); closeBcpModal(); }
+  if (e.key === 'Escape') { closeCnpjModal(); closeIntroModal(); closeBcpModal(); closeHelpModal(); }
 });
 
 // Mostra o guia de boas-vindas automaticamente na primeira visita
