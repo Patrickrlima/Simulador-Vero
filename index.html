@@ -153,6 +153,14 @@
       padding: 20px calc(16px + env(safe-area-inset-right)) 60px calc(16px + env(safe-area-inset-left));
     }
 
+    .greeting-banner {
+      margin: 0 0 16px;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+    .greeting-banner .emoji { margin-right: 4px; }
+
     /* LAYOUT — grid com áreas nomeadas: no desktop mantém a organização original em
        2 colunas; no celular reorganiza pra ordem: plano, taxas, venda, comparação,
        mensal, resultado, parcela, pdf. Cada card recebe grid-area via sua classe .ga-*. */
@@ -1586,6 +1594,8 @@
 </header>
 
 <main>
+  <div class="greeting-banner" id="greeting-banner"></div>
+
   <div class="layout">
 
     <!-- Os 8 cards abaixo têm posição definida via CSS Grid (grid-area).
@@ -2074,6 +2084,18 @@
         </div>
 
         <div class="field">
+          <label for="pdf-incl-venda">
+            <div class="check-row">
+              <input type="checkbox" id="pdf-incl-venda" checked />
+              <div>
+                <div class="check-label">Incluir simulação desta venda</div>
+                <div class="check-sub">Mostra o resultado exato de "Dados da Venda" (valor, bandeira, forma de pagamento) na proposta</div>
+              </div>
+            </div>
+          </label>
+        </div>
+
+        <div class="field">
           <label for="pdf-incl-parcelas">
             <div class="check-row">
               <input type="checkbox" id="pdf-incl-parcelas" />
@@ -2260,6 +2282,12 @@
       </table>
     </div>
     <div class="mob-cards" id="mob-cards"></div>
+  </div>
+
+  <div class="agenda-link-wrap">
+    <button type="button" class="agenda-link-btn" onclick="openAgendaModal()">
+      <i class="ti-agenda-icon">📒</i> Agenda de Visitas
+    </button>
   </div>
 
 </main>
@@ -3454,6 +3482,7 @@ function buildProposalHTML(includeAutoPrint, simpleMode) {
   const estab       = document.getElementById('estab-name').value.trim() || '—';
   const promoter    = document.getElementById('promoter-name').value.trim();
   const inclComp    = simpleMode ? false : document.getElementById('pdf-incl-comp').checked;
+  const inclVenda   = simpleMode ? false : document.getElementById('pdf-incl-venda').checked;
   const inclParcelas= simpleMode ? false : document.getElementById('pdf-incl-parcelas').checked;
   const inclMensal  = simpleMode ? false : document.getElementById('pdf-incl-mensal').checked;
   const showCabalVc = document.getElementById('pdf-show-cabal-vc').checked;
@@ -3539,6 +3568,79 @@ function buildProposalHTML(includeAutoPrint, simpleMode) {
   const saleValueForPdf = parseFloat(document.getElementById('saleValue').value);
   const hasSaleValuePdf = saleValueForPdf > 0;
   const pdfBasis = hasSaleValuePdf ? saleValueForPdf : 1000;
+
+  // ── Seção "Simulação desta Venda" — reproduz o card de resultado que já aparece na tela ──
+  let vendaUnicaHTML = '';
+  if (inclVenda && hasSaleValuePdf) {
+    const vBrand = state.brand, vMethod = state.method, vInst = state.inst;
+    const vG = calcVero(vBrand, vMethod, vInst, state.inclAdv);
+
+    if (vG) {
+      const vGL = saleValueForPdf * (1 - vG.total);
+      const vGC = saleValueForPdf * vG.total;
+
+      const vIsVeroComp  = state.compMode === 'vero';
+      const vIsParcTable = state.compMode === 'parc-table';
+      let vC = null;
+      if (vIsVeroComp) {
+        vC = calcCompVero(vBrand, vMethod, vInst);
+      } else if (vIsParcTable) {
+        vC = calcCompParcTable(vMethod, vInst);
+      } else {
+        const vComp = getComp();
+        vC = (vBrand === 'vm' || vBrand === 'elo') ? calcComp(vMethod, vInst, vComp) : null;
+      }
+      const vCL   = vC ? saleValueForPdf * (1 - vC.total) : null;
+      const vGain = vCL !== null ? vGL - vCL : null;
+
+      const vMethodLabel =
+        vMethod === 'debito'  ? 'Débito' :
+        vMethod === 'credito' ? 'Crédito à Vista' :
+        vMethod === 'pix'     ? 'PIX' :
+        vMethod === 'ban'     ? 'Voucher Banricard' :
+        `Crédito ${vInst}x`;
+
+      const vBrandLabel =
+        vBrand === 'vm'  ? 'Visa / Mastercard' :
+        vBrand === 'elo' ? 'Elo / Cabal'       :
+        vBrand === 'vc'  ? 'VerdeCard'         :
+        vBrand === 'ban' ? 'Banricard'         :
+        vBrand === 'bcp' ? 'Banricompras'      : 'PIX';
+
+      const vCompLabel = vIsVeroComp
+        ? `ZAZ ${state.compPlan}`
+        : vIsParcTable ? 'Concorrente (taxa composta)' : 'Concorrente';
+
+      vendaUnicaHTML = `
+        <div style="margin-top:14px">
+          <div class="sec-title">💳 Simulação desta Venda — ${vMethodLabel} · ${vBrandLabel}</div>
+          <div class="sec-sub">Valor simulado: ${brl(saleValueForPdf)} · Plano ZAZ ${planKey} · ${isAut ? 'Antecipação Automática' : 'Antecipação Opcional'}</div>
+          <div class="two-cols" style="grid-template-columns:1fr 1fr">
+            <div class="antecip-card" style="align-items:flex-start;text-align:left">
+              <div class="ac-label">Você recebe (Vero)</div>
+              <div class="ac-rate" style="font-size:22px">${brl(vGL)}</div>
+              <div class="ac-sub">Taxa total ${p(vG.total)} · Custo ${brl(vGC)}</div>
+            </div>
+            ${vC ? `
+            <div class="antecip-card" style="align-items:flex-start;text-align:left;background:#F4F6FB;border-color:#DDE2EF">
+              <div class="ac-label" style="color:#8A8A9A">Você recebe (${vCompLabel})</div>
+              <div class="ac-rate" style="font-size:22px;color:#6C6C70">${brl(vCL)}</div>
+              <div class="ac-sub">Taxa total ${p(vC.total)}</div>
+            </div>` : `
+            <div class="antecip-card" style="align-items:flex-start;text-align:left;background:#F4F6FB;border-color:#DDE2EF">
+              <div class="ac-label" style="color:#8A8A9A">Comparativo</div>
+              <div class="ac-sub" style="margin-top:6px">Preencha as taxas do concorrente para comparar.</div>
+            </div>`}
+          </div>
+          ${vGain !== null ? `
+          <div class="ms-pdf-gain ${vGain < 0 ? 'negative' : ''}" style="margin-top:10px">
+            ${vGain >= 0
+              ? `✅ ZAZ ${planKey} rende +${brl(vGain)} a mais nesta venda`
+              : `⚠️ ${vCompLabel} rende +${brl(Math.abs(vGain))} a mais nesta venda`}
+          </div>` : ''}
+        </div>`;
+    }
+  }
 
   // ── Resolve comparison label & data ──────────────────────────
   const mode     = state.compMode;
@@ -3638,8 +3740,6 @@ function buildProposalHTML(includeAutoPrint, simpleMode) {
     { label:'Crédito 1x',       vm: pd.vm?.cred,  elo: pd.elo?.cred,  vc: pd.vc?.cred,  bcp: pd.bcp?.cred  },
     { label:'Parcelado 2–6x',   vm: pd.vm?.p2a6,  elo: pd.elo?.p2a6,  vc: pd.vc?.p2a12, bcp: pd.bcp?.p2a6  },
     { label:'Parcelado 7–18x',  vm: pd.vm?.p7a12, elo: pd.elo?.p7a12, vc: pd.vc?.p2a12, bcp: pd.bcp?.p7a12 },
-    { label:'PIX',              vm: pd.pix,        elo: pd.pix,        vc: null,         bcp: null          },
-    { label:'Voucher Banricard', vm: pd.ban,       elo: pd.ban,        vc: null,         bcp: null          },
   ];
 
   const baseTableRows = baseRows.map(r => `
@@ -3960,6 +4060,8 @@ td.g-eq { color:#8A8A9A; text-align:center; }
         : 'Cobrada somente quando o estabelecimento solicitar antecipação dos recebíveis.'}</div>
     </div>
   </div>
+
+  ${vendaUnicaHTML}
 
   ${inclParcelas ? instTableHTML : ''}
 
@@ -4433,6 +4535,7 @@ const HELP_TOPICS = {
       <p>Preencha o <strong>nome do estabelecimento</strong> e do <strong>promotor</strong> — aparecem no cabeçalho da proposta.</p>
       <p>Os checkboxes controlam o que entra no PDF, tudo opcional:</p>
       <ul>
+        <li><strong>Incluir simulação desta venda:</strong> mostra o resultado exato de "Dados da Venda" (valor, bandeira e forma de pagamento escolhidos) — ligado por padrão.</li>
         <li><strong>Incluir comparativo:</strong> adiciona a coluna do concorrente/outro plano na tabela.</li>
         <li><strong>Mostrar valor líquido em R$:</strong> usa o valor real da venda simulada (ou R$1.000 de referência, se estiver vazio).</li>
         <li><strong>Amostra de parcelamento até 18x:</strong> inclui a tabela completa de parcelas — desligado por padrão, pra deixar a negociação mais estratégica.</li>
@@ -4636,8 +4739,17 @@ function useCnpjData(razaoSocial, nomeFantasia) {
   estabInput.focus();
 }
 
+function renderGreeting() {
+  const hora = new Date().getHours();
+  const saudacao = hora < 12 ? 'Bom dia' : hora < 18 ? 'Boa tarde' : 'Boa noite';
+  const emoji = hora < 12 ? '☀️' : hora < 18 ? '🌤️' : '🌙';
+  const el = document.getElementById('greeting-banner');
+  if (el) el.innerHTML = `<span class="emoji">${emoji}</span>${saudacao}! Vamos simular a próxima venda?`;
+}
+
 // Init
 updateInstallmentOptions();
+renderGreeting();
 render();
 </script>
 
