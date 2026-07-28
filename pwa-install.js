@@ -17,12 +17,14 @@
   var style = document.createElement('style');
   style.textContent = ''
     + '#pwa-install-btn{position:fixed;right:16px;bottom:16px;z-index:99999;'
-    + 'display:none;align-items:center;gap:8px;padding:12px 18px;border:none;'
-    + 'border-radius:999px;background:#5B21B6;color:#fff;font-weight:700;'
-    + 'font-size:14px;box-shadow:0 6px 20px rgba(91,33,182,.4);cursor:pointer;'
-    + 'font-family:inherit}'
-    + '#pwa-install-btn:hover{background:#4c1d95}'
-    + '#pwa-install-btn .ic{font-size:18px;line-height:1}'
+    + 'display:none;align-items:center;font-family:inherit;cursor:pointer;'
+    + 'font-weight:500;font-size:15px;padding:0.75em 1.4em 0.75em 1.1em;color:#fff;'
+    + 'background:linear-gradient(0deg,rgba(77,54,208,1) 0%,rgba(132,116,254,1) 100%);'
+    + 'border:none;box-shadow:0 0.7em 1.5em -0.5em #4d36d0be;letter-spacing:.05em;'
+    + 'border-radius:20em;transition:box-shadow .2s,transform .2s}'
+    + '#pwa-install-btn:hover{box-shadow:0 0.5em 1.5em -0.5em #4d36d0be;transform:translateY(-2px)}'
+    + '#pwa-install-btn:active{box-shadow:0 0.3em 1em -0.5em #4d36d0be;transform:translateY(0)}'
+    + '#pwa-install-btn svg{margin-right:8px;flex-shrink:0}'
     + '#pwa-install-btn.show{display:inline-flex}'
     + '#pwa-ios-hint{position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;'
     + 'display:none;background:#fff;color:#222;border:1px solid #e5e7eb;'
@@ -38,7 +40,10 @@
   btn.id = 'pwa-install-btn';
   btn.type = 'button';
   btn.setAttribute('aria-label', 'Instalar aplicativo');
-  btn.innerHTML = '<span class="ic">\u2B07\uFE0F</span> Instalar App';
+  btn.innerHTML =
+    '<svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">'
+    + '<path d="M12 3v13"/><path d="m7 11 5 5 5-5"/><path d="M5 21h14"/>'
+    + '</svg> Instalar App';
   document.addEventListener('DOMContentLoaded', function () {
     document.body.appendChild(btn);
   });
