@@ -5051,8 +5051,8 @@ function renderObjecaoChat() {
   if (objecaoHistorico.length === 0 && !objecaoCarregando) {
     html += `<div class="ai-empty-hint">Descreva a objeção do cliente e receba uma resposta pronta pra usar na hora.</div>`;
     html += `<div class="ai-chips">`;
-    OBJECOES_RAPIDAS.forEach((o) => {
-      html += `<button type="button" class="ai-chip" onclick="enviarObjecaoIA(${JSON.stringify(o)})">${o}</button>`;
+    OBJECOES_RAPIDAS.forEach((o, idx) => {
+      html += `<button type="button" class="ai-chip" data-idx="${idx}" onclick="enviarObjecaoIA(OBJECOES_RAPIDAS[this.dataset.idx])">${o}</button>`;
     });
     html += `</div>`;
   }
