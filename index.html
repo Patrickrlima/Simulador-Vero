@@ -3548,23 +3548,27 @@ function buildProposalHTML(includeAutoPrint, simpleMode) {
     const volDebMS  = msFatVal * (msPctDeb  / 100);
     const volCredMS = msFatVal * (msPctCred / 100);
     const volParcMS = msFatVal * (msPctParc / 100);
+    const volumeTotalMS = volDebMS + volCredMS + volParcMS;
 
     const veroLiqMS =
       (gDebMS  ? volDebMS  * (1 - gDebMS.total)  : volDebMS) +
       (gCredMS ? volCredMS * (1 - gCredMS.total) : volCredMS) +
       (gParcMS ? volParcMS * (1 - gParcMS.total) : volParcMS);
+    const veroCustoMS = volumeTotalMS - veroLiqMS;
 
     let compLiqMS = null;
+    let compCustoMS = null;
     if (cDebMS || cCredMS || cParcMS) {
       compLiqMS =
         (cDebMS  ? volDebMS  * (1 - cDebMS.total)  : volDebMS) +
         (cCredMS ? volCredMS * (1 - cCredMS.total) : volCredMS) +
         (cParcMS ? volParcMS * (1 - cParcMS.total) : volParcMS);
+      compCustoMS = volumeTotalMS - compLiqMS;
     }
 
     monthlySimData = {
       fat: msFatVal, pctDeb: msPctDeb, pctCred: msPctCred, pctParc: msPctParc, avgInst: msAvgInst,
-      veroLiq: veroLiqMS, compLiq: compLiqMS,
+      veroLiq: veroLiqMS, veroCusto: veroCustoMS, compLiq: compLiqMS, compCusto: compCustoMS,
       gainMonthly: compLiqMS !== null ? veroLiqMS - compLiqMS : null,
       compLabel: isVeroCompMS ? `ZAZ ${state.compPlan}` : 'Concorrente'
     };
@@ -3802,11 +3806,13 @@ function buildProposalHTML(includeAutoPrint, simpleMode) {
           <div class="ms-pdf-box vero">
             <div class="ms-pdf-label">Líquido Mensal — ZAZ ${planKey}</div>
             <div class="ms-pdf-value">${brl(ms.veroLiq)}</div>
+            <div class="ms-pdf-custo">Custo: ${brl(ms.veroCusto)}</div>
           </div>
           ${ms.compLiq !== null ? `
           <div class="ms-pdf-box comp">
             <div class="ms-pdf-label">Líquido Mensal — ${ms.compLabel}</div>
             <div class="ms-pdf-value">${brl(ms.compLiq)}</div>
+            <div class="ms-pdf-custo">Custo: ${brl(ms.compCusto)}</div>
           </div>` : `
           <div class="ms-pdf-box comp">
             <div class="ms-pdf-label">Comparativo</div>
@@ -3954,6 +3960,7 @@ body{
 .ms-pdf-label{ font-size:8.5px; font-weight:800; text-transform:uppercase; letter-spacing:.6px; color:#8A8A9A; margin-bottom:4px; }
 .ms-pdf-value{ font-size:22px; font-weight:800; color:#0A1972; letter-spacing:-.5px; }
 .ms-pdf-box.comp .ms-pdf-value{ color:#6C6C70; }
+.ms-pdf-custo{ font-size:9.5px; color:#8A8A9A; margin-top:3px; }
 .ms-pdf-mix{ font-size:9px; color:#8A8A9A; margin-top:10px; line-height:1.6; }
 .ms-pdf-gain{
   margin-top:10px; padding:11px 16px; border-radius:9px;
