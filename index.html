@@ -4379,17 +4379,22 @@ function renderMonthlySim() {
   const volCred = fat * (pctCred / 100);
   const volParc = fat * (pctParc / 100);
 
+  const volumeTotal = volDeb + volCred + volParc;
+
   const veroLiq =
     (gDeb  ? volDeb  * (1 - gDeb.total)  : volDeb) +
     (gCred ? volCred * (1 - gCred.total) : volCred) +
     (gParc ? volParc * (1 - gParc.total) : volParc);
+  const veroCusto = volumeTotal - veroLiq;
 
   let compLiq = null;
+  let compCusto = null;
   if (cDeb || cCred || cParc) {
     compLiq =
       (cDeb  ? volDeb  * (1 - cDeb.total)  : volDeb) +
       (cCred ? volCred * (1 - cCred.total) : volCred) +
       (cParc ? volParc * (1 - cParc.total) : volParc);
+    compCusto = volumeTotal - compLiq;
   }
 
   const gainMonthly = compLiq !== null ? veroLiq - compLiq : null;
@@ -4404,11 +4409,13 @@ function renderMonthlySim() {
       <div class="liquido-box vero-box">
         <div class="lb-label">Líquido mensal (Vero)</div>
         <div class="lb-value">${fmtBRL(veroLiq)}</div>
+        <div class="lb-cost">Custo: ${fmtBRL(veroCusto)}</div>
       </div>
       ${compLiq !== null ? `
       <div class="liquido-box comp-box">
         <div class="lb-label">Líquido mensal (${compLabel})</div>
         <div class="lb-value" style="color:var(--subtext)">${fmtBRL(compLiq)}</div>
+        <div class="lb-cost">Custo: ${fmtBRL(compCusto)}</div>
       </div>` : ''}
     </div>
     ${gainMonthly !== null ? `
