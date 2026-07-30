@@ -55,4 +55,4 @@ HTML, CSS e JavaScript puro — sem framework, sem etapa de compilação. Usa:
 
 ---
 
-Desenvolvido para a equipe comercial da **ZAZ Vendas**, promotora oficial da **Vero (Banrisul)**.
+Desenvolvido por Patrick lima Representante comercial da **ZAZ Vendas**, promotora oficial da **Vero (Banrisul)**.
