@@ -1640,14 +1640,13 @@
     .ai-fab-icon img { width: 100%; height: 100%; object-fit: cover; object-position: center 25%; }
 
     .ai-avatar {
-      width: 38px; height: 38px;
+      width: 60px; height: 60px;
       border-radius: 50%;
       overflow: hidden;
       flex-shrink: 0;
-      border: 2px solid rgba(255,255,255,0.4);
       background: rgba(255,255,255,0.15);
     }
-    .ai-avatar img { width: 100%; height: 100%; object-fit: cover; object-position: center 25%; }
+    .ai-avatar img { width: 100%; height: 100%; object-fit: cover; object-position: center 15%; }
     .ai-modal-title-row { display: flex; align-items: center; gap: 10px; }
     @media (max-width: 480px) {
       .ai-fab-label { display: none; }
@@ -1792,18 +1791,21 @@
         </div>
       </div>
       <div style="display:flex; align-items:center; gap:8px;">
+        <button id="ai-warn-toggle" class="modal-close" style="width:auto; padding:0 10px; font-size:15px;" onclick="toggleAvisoZara()" title="Mostrar/ocultar aviso">⚠️</button>
         <button id="ai-back-btn" class="modal-close" style="display:none; font-size:12px; width:auto; border-radius:16px; padding:0 12px;" onclick="voltarObjecoes()">← Objeções</button>
         <button class="modal-close" onclick="closeObjecaoModal()">✕</button>
       </div>
     </div>
 
-    <div class="ai-disclaimer">
+    <div class="ai-disclaimer" id="ai-disclaimer">
       <span class="ai-disclaimer-icon">⚠️</span>
       <div>
-        <b>A Zara é um apoio, não um substituto.</b> As respostas servem para te dar uma ideia de como conduzir a
-        negociação na hora — a decisão final, o tom e o relacionamento com o cliente continuam sendo seus. Não
-        substitui a orientação do seu gestor ou do suporte oficial Vero.
+        <b>A Zara é um apoio, não um substituto.</b> Ela lê os dados da tela pra te ajudar a resumir a proposta,
+        destacar os pontos fortes e sugerir como conduzir a negociação — mas a decisão final, o tom e o
+        relacionamento com o cliente continuam sendo seus. Não substitui a orientação do seu gestor ou do suporte
+        oficial Vero.
       </div>
+      <button onclick="toggleAvisoZara()" style="background:none; border:none; color:var(--subtext); font-size:16px; cursor:pointer; padding:0 2px; line-height:1; flex-shrink:0;">✕</button>
     </div>
 
     <div class="ai-chat-body" id="ai-chat-body">
@@ -5015,6 +5017,10 @@ const OBJECAO_WORKER_URL = 'https://my-project.patricklima.workers.dev';
 
 const LABEL_BANDEIRA = { vm: 'Visa/Master/Elo', elo: 'Visa/Master/Elo', vc: 'VerdeCard', ban: 'Banricard', bcp: 'Banricompras', pix: 'Pix' };
 
+function limparTexto(txt) {
+  return (txt || '').replace(/\s+/g, ' ').trim();
+}
+
 function montarContextoZara() {
   try {
     const pd = getPlanData();
@@ -5042,6 +5048,29 @@ function montarContextoZara() {
         linhas.push(`- ${label}: ${partes.join(', ')}`);
       }
     });
+
+    // Lê o resultado da simulação já calculado e exibido na tela (evita a IA recalcular e errar)
+    const resultCard = document.getElementById('result-card');
+    if (resultCard) {
+      const txt = limparTexto(resultCard.textContent);
+      if (txt && !txt.includes('Preencha o valor da venda')) {
+        linhas.push('');
+        linhas.push('RESULTADO DA SIMULAÇÃO JÁ CALCULADO NA TELA (leia e use estes valores, não recalcule):');
+        linhas.push(txt.slice(0, 1200));
+      }
+    }
+
+    // Lê a comparação com concorrente/outro plano, se estiver preenchida
+    const compCard = document.getElementById('comparacao-card');
+    if (compCard) {
+      const txt = limparTexto(compCard.textContent);
+      if (txt && txt.length > 80) {
+        linhas.push('');
+        linhas.push('COMPARAÇÃO ATIVA NA TELA (Vero vs concorrente ou outro plano):');
+        linhas.push(txt.slice(0, 1000));
+      }
+    }
+
     return linhas.join('\n');
   } catch (e) {
     return '';
@@ -5061,9 +5090,23 @@ const OBJECOES_RAPIDAS = [
 let objecaoHistorico = [];
 let objecaoCarregando = false;
 
+let avisoZaraAberto = true;
+
 function openObjecaoModal() {
   document.getElementById('objecao-modal-overlay').classList.add('open');
+  avisoZaraAberto = true;
+  aplicarEstadoAviso();
   renderObjecaoChat();
+}
+
+function toggleAvisoZara() {
+  avisoZaraAberto = !avisoZaraAberto;
+  aplicarEstadoAviso();
+}
+
+function aplicarEstadoAviso() {
+  const el = document.getElementById('ai-disclaimer');
+  if (el) el.style.display = avisoZaraAberto ? 'flex' : 'none';
 }
 
 function closeObjecaoModal() {
