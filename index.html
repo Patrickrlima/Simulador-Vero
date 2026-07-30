@@ -5013,7 +5013,43 @@ function renderGreeting() {
 // ===================== ASSISTENTE IA — QUEBRA DE OBJEÇÃO =====================
 const OBJECAO_WORKER_URL = 'https://my-project.patricklima.workers.dev';
 
+const LABEL_BANDEIRA = { vm: 'Visa/Master/Elo', elo: 'Visa/Master/Elo', vc: 'VerdeCard', ban: 'Banricard', bcp: 'Banricompras', pix: 'Pix' };
+
+function montarContextoZara() {
+  try {
+    const pd = getPlanData();
+    const fatEl = document.getElementById('faturamento');
+    const fat = fatEl && fatEl.value ? fatEl.value : null;
+    const linhas = [];
+    linhas.push(`Plano selecionado agora na tela: ZAZ ${state.plan} (antecipação ${state.antecipType === 'aut' ? 'automática' : 'opcional'}).`);
+    if (fat) linhas.push(`Faturamento mensal informado pelo vendedor: R$ ${fat}.`);
+    linhas.push('Taxas REAIS deste plano (use exatamente estes números, não invente outros):');
+    const jaListado = new Set();
+    ['vm', 'vc', 'ban', 'bcp', 'pix'].forEach((bandKey) => {
+      const b = pd[bandKey];
+      const label = LABEL_BANDEIRA[bandKey];
+      if (jaListado.has(label)) return;
+      jaListado.add(label);
+      if (typeof b === 'number') {
+        linhas.push(`- ${label}: ${fmtPct(b)} (taxa única)`);
+      } else if (b) {
+        const partes = [];
+        if (b.deb !== undefined) partes.push(`débito ${fmtPct(b.deb)}`);
+        if (b.cred !== undefined) partes.push(`crédito 1x ${fmtPct(b.cred)}`);
+        if (b.p2a6 !== undefined) partes.push(`parcelado 2-6x ${fmtPct(b.p2a6)}`);
+        if (b.p7a12 !== undefined) partes.push(`parcelado 7-18x ${fmtPct(b.p7a12)}`);
+        if (b.p2a12 !== undefined) partes.push(`parcelado 2-18x ${fmtPct(b.p2a12)}`);
+        linhas.push(`- ${label}: ${partes.join(', ')}`);
+      }
+    });
+    return linhas.join('\n');
+  } catch (e) {
+    return '';
+  }
+}
+
 const OBJECOES_RAPIDAS = [
+  '📊 Resuma pra mim as taxas desse plano e faturamento da tela',
   'Já tenho maquininha e não quero trocar',
   'A taxa de vocês é mais cara',
   'Prefiro receber só por Pix, não preciso de maquininha',
@@ -5047,6 +5083,10 @@ function renderObjecaoChat() {
   backBtn.style.display = objecaoHistorico.length > 0 ? 'inline-flex' : 'none';
 
   let html = '';
+
+  const fatEl = document.getElementById('faturamento');
+  const fatAtual = fatEl && fatEl.value ? fatEl.value : null;
+  html += `<div style="font-size:11px; color:var(--subtext); background:var(--primary-light); border-radius:7px; padding:6px 10px; margin-bottom:2px;">📊 Zara está vendo: Plano ZAZ ${state.plan}${fatAtual ? ` · Faturamento R$ ${fatAtual}` : ' · faturamento ainda não preenchido'}</div>`;
 
   if (objecaoHistorico.length === 0 && !objecaoCarregando) {
     html += `<div class="ai-empty-hint">Descreva a objeção do cliente e receba uma resposta pronta pra usar na hora.</div>`;
@@ -5092,7 +5132,7 @@ async function enviarObjecaoIA(textoDireto) {
     const response = await fetch(OBJECAO_WORKER_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ mensagens }),
+      body: JSON.stringify({ mensagens, contexto: montarContextoZara() }),
     });
     if (!response.ok) throw new Error('Falha na requisição');
     const data = await response.json();
