@@ -984,6 +984,14 @@
     }
     .btn-export-simple:hover { background: rgba(255,255,255,0.22); }
 
+    .btn-preview {
+      background: transparent;
+      color: #fff;
+      border: 1.5px dashed rgba(255,255,255,0.45);
+      box-shadow: none;
+    }
+    .btn-preview:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.7); }
+
     .btn-copy-resumo {
       background: rgba(255,255,255,0.14);
       color: #fff;
@@ -1619,6 +1627,150 @@
         margin-left: 0;
       }
     }
+    /* ====== ASSISTENTE IA — QUEBRA DE OBJEÇÃO ====== */
+    .ai-fab {
+      position: fixed;
+      right: calc(18px + env(safe-area-inset-right));
+      bottom: calc(18px + env(safe-area-inset-bottom));
+      z-index: 900;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      background: linear-gradient(135deg, var(--primary), var(--accent-dark));
+      color: #fff;
+      border: none;
+      border-radius: 30px;
+      padding: 13px 20px 13px 15px;
+      box-shadow: 0 8px 24px rgba(10,25,114,0.35), 0 2px 8px rgba(0,0,0,0.15);
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 13.5px;
+      font-weight: 800;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .ai-fab:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(10,25,114,0.4), 0 2px 8px rgba(0,0,0,0.18); }
+    .ai-fab:active { transform: translateY(0); }
+    .ai-fab-icon {
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+    .ai-fab-icon img { width: 100%; height: 100%; object-fit: cover; object-position: center center; }
+
+    .ai-avatar {
+      width: 60px; height: 60px;
+      border-radius: 50%;
+      overflow: hidden;
+      flex-shrink: 0;
+      background: rgba(255,255,255,0.15);
+    }
+    .ai-avatar img { width: 100%; height: 100%; object-fit: cover; object-position: center center; }
+    .ai-modal-title-row { display: flex; align-items: center; gap: 10px; }
+    @media (max-width: 480px) {
+      .ai-fab-label { display: none; }
+      .ai-fab { padding: 14px; border-radius: 50%; }
+      .ai-fab-icon { width: 24px; height: 24px; }
+    }
+
+    .ai-modal-box { max-width: 480px; display: flex; flex-direction: column; max-height: min(680px, 88vh); }
+    .ai-disclaimer {
+      display: flex;
+      gap: 9px;
+      align-items: flex-start;
+      background: var(--primary-light);
+      border: 1px solid rgba(10,25,114,0.15);
+      border-radius: 10px;
+      padding: 11px 13px;
+      margin: 16px 20px 0;
+      font-size: 12px;
+      line-height: 1.55;
+      color: var(--text);
+    }
+    .ai-disclaimer b { color: var(--primary); }
+    .ai-disclaimer-icon { font-size: 15px; flex-shrink: 0; line-height: 1.4; }
+
+    .ai-chat-body {
+      padding: 14px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      overflow-y: auto;
+      flex: 1;
+      min-height: 120px;
+    }
+    .ai-empty-hint { font-size: 13px; color: var(--subtext); line-height: 1.6; margin-bottom: 4px; }
+    .ai-chips { display: flex; flex-direction: column; gap: 7px; }
+    .ai-chip {
+      text-align: left;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 9px 12px;
+      font-family: inherit;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--text);
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .ai-chip:hover { border-color: var(--primary); background: var(--primary-light); }
+
+    .ai-bubble-objecao {
+      align-self: flex-end;
+      max-width: 85%;
+      background: var(--primary-light);
+      border-radius: 10px;
+      padding: 9px 13px;
+    }
+    .ai-bubble-objecao .ai-b-label { font-size: 10.5px; font-weight: 700; color: var(--primary); margin-bottom: 2px; }
+    .ai-bubble-objecao .ai-b-text { font-size: 13px; color: var(--text); }
+
+    .ai-bubble-resposta {
+      align-self: flex-start;
+      max-width: 92%;
+      background: var(--success-bg);
+      border: 1px solid rgba(40,167,69,0.25);
+      border-radius: 10px;
+      padding: 11px 13px;
+    }
+    .ai-bubble-resposta .ai-b-label { font-size: 10.5px; font-weight: 700; color: #1a7a3a; margin-bottom: 3px; }
+    .ai-bubble-resposta .ai-b-text { font-size: 13px; color: var(--text); line-height: 1.6; white-space: pre-wrap; }
+    .ai-bubble-erro { align-self: flex-start; font-size: 12.5px; color: var(--danger); }
+
+    .ai-input-row {
+      display: flex;
+      gap: 8px;
+      padding: 13px 20px calc(13px + env(safe-area-inset-bottom));
+      border-top: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .ai-input {
+      flex: 1;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 10px 12px;
+      font-family: inherit;
+      font-size: 13px;
+      color: var(--text);
+      background: #fff;
+    }
+    .ai-input:focus { outline: none; border-color: var(--primary); }
+    .ai-send-btn {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 9px;
+      padding: 0 18px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .ai-send-btn:disabled { opacity: 0.5; cursor: default; }
   </style>
 </head>
 <body>
@@ -1642,6 +1794,54 @@
     <div class="h-badge">Simulador de Taxas</div>
   </div>
 </header>
+
+<!-- Botão flutuante — Assistente de quebra de objeção -->
+<button class="ai-fab" onclick="openObjecaoModal()">
+  <span class="ai-fab-icon"><img src="zara-avatar.png" alt="Zara"></span>
+  <span class="ai-fab-label">Falar com a Zara</span>
+</button>
+
+<!-- Modal — Assistente de quebra de objeção (IA) -->
+<div class="modal-overlay" id="objecao-modal-overlay" onclick="if(event.target===this) closeObjecaoModal()">
+  <div class="modal-box ai-modal-box">
+    <div class="modal-head">
+      <div class="ai-modal-title-row">
+        <span class="ai-avatar"><img src="zara-avatar.png" alt="Zara"></span>
+        <div>
+          <h2>Zara</h2>
+          <div class="modal-sub">Assistente de IA · ZAZ Vendas</div>
+        </div>
+      </div>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <button id="ai-warn-toggle" class="modal-close" style="width:auto; padding:0 10px; font-size:15px;" onclick="toggleAvisoZara()" title="Mostrar/ocultar aviso">⚠️</button>
+        <button id="ai-back-btn" class="modal-close" style="display:none; font-size:12px; width:auto; border-radius:16px; padding:0 12px;" onclick="voltarObjecoes()">← Objeções</button>
+        <button class="modal-close" onclick="closeObjecaoModal()">✕</button>
+      </div>
+    </div>
+
+    <div class="ai-disclaimer" id="ai-disclaimer">
+      <span class="ai-disclaimer-icon">⚠️</span>
+      <div>
+        <b>A Zara é um apoio, não um substituto.</b> Ela lê os dados da tela pra te ajudar a resumir a proposta,
+        destacar os pontos fortes e sugerir como conduzir a negociação — mas a decisão final, o tom e o
+        relacionamento com o cliente continuam sendo seus. Não substitui a orientação do seu gestor ou do suporte
+        oficial Vero.
+      </div>
+      <button onclick="toggleAvisoZara()" style="background:none; border:none; color:var(--subtext); font-size:16px; cursor:pointer; padding:0 2px; line-height:1; flex-shrink:0;">✕</button>
+    </div>
+
+    <div class="ai-chat-body" id="ai-chat-body">
+      <!-- preenchido via JS -->
+    </div>
+
+    <div class="ai-input-row">
+      <input type="text" id="ai-input" class="ai-input" placeholder="Ex: cliente disse que a taxa está cara"
+             onkeydown="if(event.key==='Enter') enviarObjecaoIA()">
+      <button class="ai-send-btn" id="ai-send-btn" onclick="enviarObjecaoIA()">Enviar</button>
+    </div>
+  </div>
+</div>
+
 
 <main>
   <div class="greeting-banner" id="greeting-banner"></div>
@@ -2179,6 +2379,13 @@
               </div>
             </div>
           </label>
+        </div>
+
+        <button class="btn-export btn-preview" onclick="previewProposalPDF()">
+          <span>🖨️</span> Pré-visualizar Proposta
+        </button>
+        <div class="btn-whatsapp-note">
+          Abre a proposta pronta pra conferir, sem imprimir nem baixar — revise antes de exportar ou enviar.
         </div>
 
         <button class="btn-export" onclick="generatePDF()">
@@ -4167,6 +4374,13 @@ function generatePDF() {
   win.document.close();
 }
 
+function previewProposalPDF() {
+  const html = buildProposalHTML(false);
+  const win = window.open('', '_blank');
+  win.document.write(html);
+  win.document.close();
+}
+
 function generateSimplePDF() {
   const html = buildProposalHTML(true, true);
   const win = window.open('', '_blank');
@@ -4424,7 +4638,6 @@ async function copiarResumoWhatsApp() {
   try {
     await navigator.clipboard.writeText(texto);
   } catch (e) {
-    // Fallback pra navegadores sem permissão de clipboard automática
     const textarea = document.createElement('textarea');
     textarea.value = texto;
     textarea.style.position = 'fixed';
@@ -4755,11 +4968,13 @@ const HELP_TOPICS = {
         <li><strong>Projeção de faturamento mensal:</strong> só entra se você tiver preenchido aquele card.</li>
         <li><strong>Mostrar Cabal e VerdeCard:</strong> desligado por padrão. Elo é bandeira tradicional e aparece sempre, igual Visa/Mastercard — esse toggle controla só Cabal e VerdeCard.</li>
       </ul>
-      <p>Os três botões:</p>
+      <p>Os cinco botões:</p>
       <ul>
+        <li><strong>🖨️ Pré-visualizar Proposta:</strong> abre a proposta pronta pra você conferir, sem baixar nem imprimir — bom pra revisar antes de mandar pro cliente.</li>
         <li><strong>⬇️ Exportar Proposta PDF:</strong> gera a proposta completa, com tudo que você marcou acima.</li>
         <li><strong>📋 PDF Só das Taxas do Plano:</strong> gera uma versão enxuta, só com a tabela de taxas do plano escolhido — sem comparativo, sem parcelas, sem projeção mensal.</li>
         <li><strong>💬 Enviar PDF por WhatsApp:</strong> gera o PDF completo e já abre o compartilhamento — no celular, anexa o arquivo automaticamente.</li>
+        <li><strong>📋 Copiar Resumo para WhatsApp:</strong> copia um texto pronto (com os números da simulação) pra colar como legenda, sem precisar do PDF.</li>
       </ul>`
   }
 };
@@ -4982,6 +5197,182 @@ function renderGreeting() {
   const emoji = hora < 12 ? '☀️' : hora < 18 ? '🌤️' : '🌙';
   const el = document.getElementById('greeting-banner');
   if (el) el.innerHTML = `<span class="emoji">${emoji}</span>${saudacao}! Vamos simular a próxima venda?`;
+}
+
+// ===================== ASSISTENTE IA — QUEBRA DE OBJEÇÃO =====================
+const OBJECAO_WORKER_URL = 'https://my-project.patricklima.workers.dev';
+
+const LABEL_BANDEIRA = { vm: 'Visa/Master/Elo', elo: 'Visa/Master/Elo', vc: 'VerdeCard', ban: 'Banricard', bcp: 'Banricompras', pix: 'Pix' };
+
+function limparTexto(txt) {
+  return (txt || '').replace(/\s+/g, ' ').trim();
+}
+
+function montarContextoZara() {
+  try {
+    const pd = getPlanData();
+    const fatEl = document.getElementById('faturamento');
+    const fat = fatEl && fatEl.value ? fatEl.value : null;
+    const linhas = [];
+    linhas.push(`Plano selecionado agora na tela: ZAZ ${state.plan} (antecipação ${state.antecipType === 'aut' ? 'automática' : 'opcional'}).`);
+    if (fat) linhas.push(`Faturamento mensal informado pelo vendedor: R$ ${fat}.`);
+    linhas.push('Taxas REAIS deste plano (use exatamente estes números, não invente outros):');
+    const jaListado = new Set();
+    ['vm', 'vc', 'ban', 'bcp', 'pix'].forEach((bandKey) => {
+      const b = pd[bandKey];
+      const label = LABEL_BANDEIRA[bandKey];
+      if (jaListado.has(label)) return;
+      jaListado.add(label);
+      if (typeof b === 'number') {
+        linhas.push(`- ${label}: ${fmtPct(b)} (taxa única)`);
+      } else if (b) {
+        const partes = [];
+        if (b.deb !== undefined) partes.push(`débito ${fmtPct(b.deb)}`);
+        if (b.cred !== undefined) partes.push(`crédito 1x ${fmtPct(b.cred)}`);
+        if (b.p2a6 !== undefined) partes.push(`parcelado 2-6x ${fmtPct(b.p2a6)}`);
+        if (b.p7a12 !== undefined) partes.push(`parcelado 7-18x ${fmtPct(b.p7a12)}`);
+        if (b.p2a12 !== undefined) partes.push(`parcelado 2-18x ${fmtPct(b.p2a12)}`);
+        linhas.push(`- ${label}: ${partes.join(', ')}`);
+      }
+    });
+
+    // Lê o resultado da simulação já calculado e exibido na tela (evita a IA recalcular e errar)
+    const resultCard = document.getElementById('result-card');
+    if (resultCard) {
+      const txt = limparTexto(resultCard.textContent);
+      if (txt && !txt.includes('Preencha o valor da venda')) {
+        linhas.push('');
+        linhas.push('RESULTADO DA SIMULAÇÃO JÁ CALCULADO NA TELA (leia e use estes valores, não recalcule):');
+        linhas.push(txt.slice(0, 1200));
+      }
+    }
+
+    // Lê a comparação com concorrente/outro plano, se estiver preenchida
+    const compCard = document.getElementById('comparacao-card');
+    if (compCard) {
+      const txt = limparTexto(compCard.textContent);
+      if (txt && txt.length > 80) {
+        linhas.push('');
+        linhas.push('COMPARAÇÃO ATIVA NA TELA (Vero vs concorrente ou outro plano):');
+        linhas.push(txt.slice(0, 1000));
+      }
+    }
+
+    return linhas.join('\n');
+  } catch (e) {
+    return '';
+  }
+}
+
+const OBJECOES_RAPIDAS = [
+  '📊 Resuma pra mim as taxas desse plano e faturamento da tela',
+  'Já tenho maquininha e não quero trocar',
+  'A taxa de vocês é mais cara',
+  'Prefiro receber só por Pix, não preciso de maquininha',
+  'Não confio em trocar de operadora',
+  'Preciso pensar / falar com meu sócio',
+  'Cliente quer entender como funcionam as taxas e simular com o faturamento dele',
+];
+
+let objecaoHistorico = [];
+let objecaoCarregando = false;
+
+let avisoZaraAberto = true;
+
+function openObjecaoModal() {
+  document.getElementById('objecao-modal-overlay').classList.add('open');
+  avisoZaraAberto = true;
+  aplicarEstadoAviso();
+  renderObjecaoChat();
+}
+
+function toggleAvisoZara() {
+  avisoZaraAberto = !avisoZaraAberto;
+  aplicarEstadoAviso();
+}
+
+function aplicarEstadoAviso() {
+  const el = document.getElementById('ai-disclaimer');
+  if (el) el.style.display = avisoZaraAberto ? 'flex' : 'none';
+}
+
+function closeObjecaoModal() {
+  document.getElementById('objecao-modal-overlay').classList.remove('open');
+}
+
+function voltarObjecoes() {
+  objecaoHistorico = [];
+  renderObjecaoChat();
+}
+
+function renderObjecaoChat() {
+  const body = document.getElementById('ai-chat-body');
+  const sendBtn = document.getElementById('ai-send-btn');
+  const backBtn = document.getElementById('ai-back-btn');
+  sendBtn.disabled = objecaoCarregando;
+  backBtn.style.display = objecaoHistorico.length > 0 ? 'inline-flex' : 'none';
+
+  let html = '';
+
+  const fatEl = document.getElementById('faturamento');
+  const fatAtual = fatEl && fatEl.value ? fatEl.value : null;
+  html += `<div style="font-size:11px; color:var(--subtext); background:var(--primary-light); border-radius:7px; padding:6px 10px; margin-bottom:2px;">📊 Zara está vendo: Plano ZAZ ${state.plan}${fatAtual ? ` · Faturamento R$ ${fatAtual}` : ' · faturamento ainda não preenchido'}</div>`;
+
+  if (objecaoHistorico.length === 0 && !objecaoCarregando) {
+    html += `<div class="ai-empty-hint">Descreva a objeção do cliente e receba uma resposta pronta pra usar na hora.</div>`;
+    html += `<div class="ai-chips">`;
+    OBJECOES_RAPIDAS.forEach((o, idx) => {
+      html += `<button type="button" class="ai-chip" data-idx="${idx}" onclick="enviarObjecaoIA(OBJECOES_RAPIDAS[this.dataset.idx])">${o}</button>`;
+    });
+    html += `</div>`;
+  }
+
+  objecaoHistorico.forEach((item) => {
+    if (item.tipo === 'objecao') {
+      html += `<div class="ai-bubble-objecao"><div class="ai-b-label">Cliente disse</div><div class="ai-b-text">${item.texto}</div></div>`;
+    } else {
+      html += `<div class="ai-bubble-resposta"><div class="ai-b-label">Zara sugere</div><div class="ai-b-text">${item.texto}</div></div>`;
+    }
+  });
+
+  if (objecaoCarregando) {
+    html += `<div class="ai-bubble-resposta"><div class="ai-b-label">Zara sugere</div><div class="ai-b-text" style="color:var(--subtext)">Pensando...</div></div>`;
+  }
+
+  body.innerHTML = html;
+  body.scrollTop = body.scrollHeight;
+}
+
+async function enviarObjecaoIA(textoDireto) {
+  const input = document.getElementById('ai-input');
+  const texto = (textoDireto !== undefined ? textoDireto : input.value).trim();
+  if (!texto || objecaoCarregando) return;
+
+  objecaoHistorico.push({ tipo: 'objecao', texto });
+  input.value = '';
+  objecaoCarregando = true;
+  renderObjecaoChat();
+
+  const mensagens = objecaoHistorico.map((item) => ({
+    role: item.tipo === 'objecao' ? 'user' : 'assistant',
+    content: item.texto,
+  }));
+
+  try {
+    const response = await fetch(OBJECAO_WORKER_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mensagens, contexto: montarContextoZara() }),
+    });
+    if (!response.ok) throw new Error('Falha na requisição');
+    const data = await response.json();
+    objecaoHistorico.push({ tipo: 'resposta', texto: data.texto || 'Não consegui gerar uma resposta agora.' });
+  } catch (e) {
+    objecaoHistorico.push({ tipo: 'resposta', texto: 'Não consegui gerar a resposta agora. Verifica sua conexão e tenta de novo.' });
+  } finally {
+    objecaoCarregando = false;
+    renderObjecaoChat();
+  }
 }
 
 // Init
